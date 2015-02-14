@@ -1,0 +1,15 @@
+# IDE files
+nbproject
+.idea
+.settings
+.project
+
+# Composer
+/composer
+/composer.phar
+/composer.lock
+/vendor/
+
+# Binaries directory
+/bin/*
+!/bin/allure-runner

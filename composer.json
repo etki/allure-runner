@@ -1,0 +1,21 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Etki\\Testing\\AllureFramework\\Runner\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Etki\\Testing\\AllureFramework\\Runner\\Tests\\": "tests/Suites"
+    }
+  },
+  "require": {
+    "codeception/codeception": "~2.0"
+  },
+  "require-dev": {
+    "allure-framework/allure-codeception": "dev-master"
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
+}

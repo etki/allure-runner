@@ -1,0 +1,8 @@
+*
+!.gitignore
+!/Data
+!/Reports
+/Data/*
+!/Data/.gitkeep
+/Reports/*
+!/Reports/.gitkeep
