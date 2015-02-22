@@ -1,0 +1,5 @@
+#!/usr/bin/env php
+<?php
+
+// Of course there is no point of running a runner. This file has been made just
+// to ease testing process a little bit.

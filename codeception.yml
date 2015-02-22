@@ -16,7 +16,11 @@ coverage:
 extensions:
   enabled:
     - Yandex\Allure\Adapter\AllureAdapter
+    - Etki\Shortcut\AllureRunner\Codeception
   config:
     Yandex\Allure\Adapter\AllureAdapter:
       deletePreviousResults: true
       outputDirectory: ../Data/Allure
+    Etki\Shortcut\AllureRunner\Codeception:
+      verbosity: debug
+      sources: []

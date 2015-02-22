@@ -5,8 +5,8 @@ namespace Etki\Testing\AllureFramework\Runner\Configuration;
 /**
  * This class specifies runner behavior on different scenarios.
  *
- * @SuppressWarnings(PHPMD.LongVariable)
- * 
+ * @SuppressWarnings(PHPMD.LongVariableName)
+ *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Configuration
@@ -15,6 +15,6 @@ namespace Etki\Testing\AllureFramework\Runner\Configuration;
 class Behavior
 {
     private $throwOnMissingBinary = true;
-    private $throwOnNonNullExitCode = true;
+    private $throwOnNonNullExitCode = false;
     private $useAutoloadingClassExistsCalls = true;
 }

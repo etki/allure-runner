@@ -1,7 +1,19 @@
 {
+  "name": "etki/allure-runner",
+  "description": "Simple package providing API for allure-cli implementation",
+  "authors": [
+    {
+      "name": "Etki",
+      "email": "etki@etki.name",
+      "role": "Developer"
+    }
+  ],
+  "keywords": ["testing", "test", "allure", "codeception", "phpunit"],
+  "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Etki\\Testing\\AllureFramework\\Runner\\": "src/"
+      "Etki\\Testing\\AllureFramework\\Runner\\": "src/",
+      "Etki\\Shortcut\\AllureRunner\\": "shortcuts/"
     }
   },
   "autoload-dev": {
@@ -10,10 +22,18 @@
     }
   },
   "require": {
-    "codeception/codeception": "~2.0"
+    "symfony/process": "~2.6",
+    "symfony/filesystem": "~2.6"
   },
   "require-dev": {
+    "codeception/codeception": "~2.0",
     "allure-framework/allure-codeception": "dev-master"
+  },
+  "suggest": {
+    "codeception/codeception": "Rich testing framework Allure runner provides support for",
+    "sebastianbergmann/phpunit": "Industry standard PHP testing framework Allure runner provides support for",
+    "allure-framework/allure-codeception": "Allure Framework integration extension for Codeception",
+    "allure-framework/allure-phpunit": "Allure Framework integration listener for PHPUnit"
   },
   "config": {
     "bin-dir": "bin"

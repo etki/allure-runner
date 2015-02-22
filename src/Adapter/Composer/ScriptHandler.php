@@ -20,6 +20,5 @@ class ScriptHandler
      */
     public static function generateReport()
     {
-        
     }
 }
