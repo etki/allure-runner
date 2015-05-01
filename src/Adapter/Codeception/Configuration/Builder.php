@@ -6,6 +6,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Codeception\Configuration as CodeceptionConfiguration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\Exception\Configuration\BadConfigurationException;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem as FilesystemUtility;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -65,7 +66,7 @@ class Builder
         $outputDirectory = $this->calculateOutputDirectory(
             $extensionConfiguration[Schema::PARAMETER_NAME_OUTPUT_DIRECTORY]
         );
-        $configuration->setOutputDirectory($outputDirectory);
+        $configuration->setReportPath($outputDirectory);
         $configuration->setReportVersion(
             $extensionConfiguration[Schema::PARAMETER_NAME_REPORT_VERSION]
         );
@@ -90,6 +91,15 @@ class Builder
     {
         if (is_string($sources)) {
             $sources = array($sources,);
+        }
+        $filesystem = new Filesystem;
+        $filesystemUtility = new FilesystemUtility;
+        foreach ($sources as &$source) {
+            $prefix = null;
+            if (!$filesystem->isAbsolutePath($source)) {
+                $prefix = rtrim(CodeceptionConfiguration::outputDir(), '\\/');
+            }
+            $source = $filesystemUtility->normalizePath($source, $prefix);
         }
         return $sources;
     }

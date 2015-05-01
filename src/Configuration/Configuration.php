@@ -7,6 +7,8 @@ use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
 /**
  * Allure runner configuration.
  *
+ * @codeCoverageIgnore
+ *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Configuration
@@ -21,6 +23,13 @@ class Configuration
      */
     const DEFAULT_REPORT_VERSION = '1.4.5';
     /**
+     * Path to container configuration file.
+     *
+     * @since 0.1.0
+     */
+    const CONTAINER_CONFIGURATION_FILE_PATH
+        = 'resources/configuration/container.yml';
+    /**
      * List of report sources.
      *
      * @type string[]
@@ -33,7 +42,7 @@ class Configuration
      * @type string
      * @since 0.1.0
      */
-    private $outputDirectory;
+    private $reportPath;
     /**
      * Report version to use.
      *
@@ -70,6 +79,20 @@ class Configuration
      */
     private $outputPrefixFormat
         = PrefixAwareIOControllerInterface::MEDIUM_PREFIX_FORMAT;
+    /**
+     * Whether to download jar in case it's missing or not.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $downloadMissingJar = false;
+    /**
+     * Preferred Allure CLI version. Has to match release tag on github.
+     *
+     * @type string
+     * @since 0.1.0
+     */
+    private $preferredAllureVersion = '2.3';
 
     /**
      * Adds several sources at once.
@@ -174,27 +197,27 @@ class Configuration
     }
 
     /**
-     * Returns output directory.
+     * Returns report path.
      *
      * @return string
      * @since 0.1.0
      */
-    public function getOutputDirectory()
+    public function getReportPath()
     {
-        return $this->outputDirectory;
+        return $this->reportPath;
     }
 
     /**
-     * Sets output directory.
+     * Sets report output path.
      *
-     * @param string $outputDirectory Output directory.
+     * @param string $reportPath Report path.
      *
      * @return $this Current instance.
      * @since 0.1.0
      */
-    public function setOutputDirectory($outputDirectory)
+    public function setReportPath($reportPath)
     {
-        $this->outputDirectory = $outputDirectory;
+        $this->reportPath = $reportPath;
         return $this;
     }
 
@@ -270,6 +293,58 @@ class Configuration
     public function setOutputPrefixFormat($outputPrefixFormat)
     {
         $this->outputPrefixFormat = $outputPrefixFormat;
+        return $this;
+    }
+
+    /**
+     * Tells if scenario should try to download missing jar.
+     *
+     * @return boolean
+     * @since 0.1.0
+     */
+    public function shouldDownloadMissingJar()
+    {
+        return $this->downloadMissingJar;
+    }
+
+    /**
+     * Sets `download missing jar` flag.
+     *
+     * @param boolean $downloadMissingJar Flag value.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setDownloadMissingJar($downloadMissingJar)
+    {
+        $this->downloadMissingJar = $downloadMissingJar;
+        return $this;
+    }
+
+    /**
+     * Returns preferredAllureVersion.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public function getPreferredAllureVersion()
+    {
+        return $this->preferredAllureVersion;
+    }
+
+    /**
+     * Sets preferredAllureVersion.
+     *
+     * @param string $preferredAllureVersion PreferredAllureVersion.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setPreferredAllureVersion($preferredAllureVersion)
+    {
+        $this->preferredAllureVersion = $preferredAllureVersion;
         return $this;
     }
 }

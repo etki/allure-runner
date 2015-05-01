@@ -23,10 +23,10 @@ class CommandBuilder
     /**
      * Builds command
      *
-     * @param string   $executable      Path/command that will launch Allure.
-     * @param string[] $sources         List of data sources to generate report.
-     * @param string   $outputDirectory Directory to put report into.
-     * @param string   $reportVersion   Report version to use.
+     * @param string   $executable    Path/command that will launch Allure.
+     * @param string[] $sources       List of data sources to generate report.
+     * @param string   $reportPath    Directory to put report into.
+     * @param string   $reportVersion Report version to use.
      *
      * @return string Built command.
      * @since 0.1.0
@@ -34,13 +34,13 @@ class CommandBuilder
     public function buildGenerateCommand(
         $executable,
         array $sources,
-        $outputDirectory,
+        $reportPath,
         $reportVersion
     ) {
         $command = sprintf(
             self::COMMAND_TEMPLATE,
             $executable,
-            $outputDirectory,
+            $reportPath,
             $reportVersion,
             implode(' ', $sources)
         );

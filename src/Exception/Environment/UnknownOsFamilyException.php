@@ -16,7 +16,7 @@ use Exception;
 class UnknownOsFamilyException extends RuntimeException
 {
     /**
-     * OS family unknwon to runner.
+     * OS family unknown to runner.
      *
      * @type string
      * @since 0.1.0
@@ -29,6 +29,8 @@ class UnknownOsFamilyException extends RuntimeException
      * @param string    $osFamily Operating system family.
      * @param string    $message  Exception message.
      * @param Exception $previous Previous exception.
+     *
+     * @codeCoverageIgnore
      *
      * @return self
      * @since 0.1.0
@@ -47,6 +49,8 @@ class UnknownOsFamilyException extends RuntimeException
 
     /**
      * Returns OS family not known by runner.
+     *
+     * @codeCoverageIgnore
      *
      * @return string
      * @since 0.1.0

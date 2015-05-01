@@ -22,5 +22,7 @@ extensions:
       deletePreviousResults: true
       outputDirectory: ../Data/Allure
     Etki\Shortcut\AllureRunner\Codeception:
+      enabled: false
       verbosity: debug
-      sources: []
+      outputPrefixFormat: "{dateTime} {software} {level}"
+      sources: [../Data/Allure]

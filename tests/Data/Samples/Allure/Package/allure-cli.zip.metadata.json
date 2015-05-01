@@ -1,0 +1,11 @@
+ {
+   "bin/allure": {
+     "md5": "525ed78f00bf1815b1dda9de779ec022"
+   },
+   "bin/allure.bat": {
+     "md5": "d2c1aee7ffed8645234d7daa965abef7"
+   },
+   "lib/allure-cli.jar": {
+     "md5": "d41d8cd98f00b204e9800998ecf8427e"
+   }
+ }

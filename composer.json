@@ -18,12 +18,20 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Etki\\Testing\\AllureFramework\\Runner\\Tests\\": "tests/Suites"
+      "Etki\\Testing\\AllureFramework\\Runner\\Tests\\": "tests/Suites",
+      "Etki\\Testing\\AllureFramework\\Runner\\Tests\\Support\\": "tests/Support"
     }
   },
   "require": {
     "symfony/process": "~2.6",
-    "symfony/filesystem": "~2.6"
+    "symfony/filesystem": "~2.6",
+    "symfony/yaml": "~2.6",
+    "guzzle/guzzle": "~3.9",
+    "php-vfs/php-vfs": "~1.2",
+    "rhumsaa/uuid": "~2.8",
+    "knplabs/github-api": "~1.2",
+    "symfony/dependency-injection": "~2.6",
+    "symfony/config": "~2.6"
   },
   "require-dev": {
     "codeception/codeception": "~2.0",

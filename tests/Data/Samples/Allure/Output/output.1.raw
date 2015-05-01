@@ -1,0 +1,6 @@
+log4j:ERROR A "org.apache.log4j.ConsoleAppender" object is not assignable to a "org.apache.log4j.Appender" variable.
+
+log4j:ERROR The class "org.apache.log4j.Appender" was loaded by 
+log4j:ERROR [java.net.URLClassLoader@2b430201] whereas object of type 
+log4j:ERROR "org.apache.log4j.ConsoleAppender" was loaded by [sun.misc.Launcher$AppClassLoader@66a75004].
+log4j:ERROR Could not instantiate appender named "console".

@@ -3,11 +3,13 @@
 namespace Etki\Testing\AllureFramework\Runner;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
-use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
+use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
 use Etki\Testing\AllureFramework\Runner\Helper\ConfigurationDumper;
-use Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
+use Etki\Testing\AllureFramework\Runner\Run\Scenario;
+use Symfony\Component\DependencyInjection\ContainerBuilder
+    as Container;
 
 /**
  * Runs command.
@@ -20,12 +22,11 @@ use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
 class Runner
 {
     /**
-     * Software name.
+     * Default software name.
      *
      * @since 0.1.0
      */
     const SOFTWARE_NAME = 'Allure Runner';
-
     /**
      * Runner configuration.
      *
@@ -34,49 +35,94 @@ class Runner
      */
     private $configuration;
     /**
+     * DI container.
+     *
+     * @type Container
+     * @since 0.1.0
+     */
+    private $container;
+    /**
      * I/O controller.
      *
      * @type IOControllerInterface|PrefixAwareIOControllerInterface
      * @since 0.1.0
      */
     private $ioController;
+
+    /**
+     * Initializer
+     *
+     * @param Configuration         $configuration Configuration instance.
+     * @param IOControllerInterface $ioController  I/O controller.
+     * @param Container             $container     DI container.
+     *
+     * @since 0.1.0
+     */
     public function __construct(
+        Configuration $configuration,
+        IOControllerInterface $ioController = null,
+        Container $container = null
+    ) {
+        $this->validateConfiguration($configuration);
+        if (!$container) {
+            $container = $this->createContainer($configuration, $ioController);
+        }
+        $this->container = $container;
+        $this->configuration = $configuration;
+        $this->ioController = $ioController ?: $container->get('io_controller');
+        $this->configureIoController();
+    }
+
+    /**
+     * Creates container.
+     *
+     * @param Configuration         $configuration Configuration instance.
+     * @param IOControllerInterface $ioController  I/O controller.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return Container
+     * @since 0.1.0
+     */
+    private function createContainer(
         Configuration $configuration,
         IOControllerInterface $ioController = null
     ) {
-        $this->configuration = $configuration;
-        if (!$ioController) {
-            $ioController = new DummyController;
-        }
-        $this->ioController = $ioController;
-        //$this->validateConfiguration();
-        $this->configureIoController();
-        $dumper = new ConfigurationDumper;
-        $dumper->dump($configuration, $this->ioController);
+        $builder = new ContainerBuilder;
+        $projectRoot = dirname(__DIR__);
+        $configurationFilePath = $projectRoot . DIRECTORY_SEPARATOR .
+            Configuration::CONTAINER_CONFIGURATION_FILE_PATH;
+        $container = $builder->build(
+            $configurationFilePath,
+            $configuration,
+            $ioController
+        );
+        return $container;
     }
     
     /**
      * Runs command.
-     *
-     * @param Configuration $configuration
      *
      * @return int Standard exit code.
      * @since 0.1.0
      */
     public function run()
     {
-        $executable = $this->getExecutable();
-        if (!$executable) {
-            $this->ioController->writeLine(
-                'Couldn\'t find allure executable, halting',
-                Verbosity::LEVEL_ERROR
-            );
-            return 1;
-        }
-        $commandBuilder = new CommandBuilder;
+        $dumper = new ConfigurationDumper;
+        $dumper->dump($this->configuration, $this->ioController);
+        /** @type Scenario $scenario */
+        $scenario = $this->container->get('scenario');
+        $scenario->run();
     }
 
-    private function configureIoController() {
+    /**
+     * Configures I/O controller - sets verbosity and output prefix.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    private function configureIoController()
+    {
         if ($this->configuration->getVerbosity()) {
             $verbosity = $this->configuration->getVerbosity();
             $this->ioController->setVerbosity($verbosity);
@@ -89,12 +135,21 @@ class Runner
         }
         
     }
-    
-    private function getExecutable()
-    {
-        $executable = $this->configuration->getExecutable();
-        if (!$executable) {
 
-        }
+    /**
+     * Validates configuration.
+     *
+     * @param Configuration $configuration Configuration to validate.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    private function validateConfiguration(Configuration $configuration)
+    {
+        // $validator =
+        // if (!$validate
+        // throw new BadConfigurationException. 
+            
+        return true;
     }
 }

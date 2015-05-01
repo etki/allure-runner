@@ -22,6 +22,8 @@ class ConfigurationDumper
      * @param Configuration         $configuration
      * @param IOControllerInterface $ioController
      *
+     * @codeCoverageIgnore
+     *
      * @return void
      * @since 0.1.0
      */
@@ -34,7 +36,7 @@ class ConfigurationDumper
         $values = array(
             'Verbosity' => $configuration->getVerbosity(),
             'Data sources' => $configuration->getSources(),
-            'Output directory' => $configuration->getOutputDirectory(),
+            'Output directory' => $configuration->getReportPath(),
             'Executable location' => $configuration->getExecutable(),
             '`.jar` file location' => $configuration->getJar(),
             'Report version' => $configuration->getReportVersion(),
@@ -56,6 +58,8 @@ class ConfigurationDumper
      *
      * @param mixed $value Value that (probably) needs formatting)
      *
+     * @codeCoverageIgnore
+     *
      * @return string
      * @since 0.1.0
      */
@@ -65,7 +69,7 @@ class ConfigurationDumper
             return 'null';
         } elseif (is_array($value)) {
             return '[' . implode(', ', $value) . ']';
-        } 
+        }
         return $value;
     }
 }

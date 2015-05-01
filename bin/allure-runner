@@ -3,3 +3,5 @@
 
 // Of course there is no point of running a runner. This file has been made just
 // to ease testing process a little bit.
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';

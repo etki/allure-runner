@@ -127,6 +127,26 @@ class ConsoleIOController extends AbstractIOController implements
     }
 
     /**
+     * Writes several messages at once.
+     *
+     * @param string[] $messages  Messages to output.
+     * @param string   $verbosity Verbosity level for provided messages.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function writeLines(
+        array $messages,
+        $verbosity = Verbosity::LEVEL_INFO
+    ) {
+        foreach ($messages as $message) {
+            $this->writeLine($message, $verbosity);
+        }
+    }
+
+    /**
      * Tells if message ends with EOL character.
      *
      * @param string $message Message to analyze.
@@ -158,7 +178,7 @@ class ConsoleIOController extends AbstractIOController implements
             '{dateTime}' => $now->format('Y-m-d H:i:s'),
             '{softwareName}' => Runner::SOFTWARE_NAME,
             '{software}' => Runner::SOFTWARE_NAME,
-            '{verbosity}' => $verbosity,
+            '{level}' => $verbosity,
         );
         $prefix = str_replace(
             array_keys($replacements),

@@ -1,0 +1,77 @@
+# parameters to be set by hand:
+# - %configuration% - Etki\Testing\AllureFramework\Runner\Configuration\Configuration
+
+# services to be set by hand
+# - @io_controller (optional) - Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface - will replace default do-nothing blackhole dummy
+# - @service_container - Symfony\Component\DependencyInjection\Container
+# - @file_locator - Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface
+
+parameters:
+services:
+  php_api:
+    class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi
+  runtime:
+    class: Etki\Testing\AllureFramework\Runner\Environment\Runtime
+    arguments:
+      - @php_api
+  filesystem_helper:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem
+  zip_extractor:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Extractor
+  downloader:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Downloader
+  io_controller:
+    class: Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController
+  runtime:
+    class: Etki\Testing\AllureFramework\Runner\Environment\Runtime
+  process_factory:
+    class: Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory
+  file_locator_factory:
+    class: Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory
+    arguments:
+      - @runtime
+      - @process_factory
+  scenario:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario
+    arguments:
+      - %configuration%
+      - @allure_resolver
+      - @runner
+      - @io_controller
+  java_locator:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JavaExecutableLocator
+    arguments:
+      - @file_locator
+      - @io_controller
+  jar_locator:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarLocator
+    arguments:
+      - @file_locator
+      - @io_controller
+  jar_downloader:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader
+    arguments:
+      - @downloader
+      - @zip_extractor
+      - @io_controller
+      - @php_api
+  jar_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarResolver
+    arguments:
+      - %configuration% 
+      - @jar_locator
+      - @jar_downloader
+      - @io_controller
+  allure_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver
+    arguments:
+      - %configuration%
+      - @file_locator
+      - @java_locator
+      - @jar_resolver
+      - @io_controller
+  runner:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\Runner
+    arguments:
+      - @process_factory
+    

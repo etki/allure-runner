@@ -4,8 +4,8 @@ namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\IO\Controller;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\IO\Controller\ConsoleIOController;
-use Codeception\TestCase\Test;
 use Etki\Testing\AllureFramework\Runner\IO\WriterInterface;
+use Codeception\TestCase\Test;
 use UnitTester;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 use ReflectionObject;
@@ -206,10 +206,10 @@ class ConsoleIOControllerTest extends Test
     public function testPrefixing()
     {
         $controller = $this->createTestInstance(Verbosity::LEVEL_DEBUG);
-        $controller->setPrefixFormat('{dateTime} {date} {time} {verbosity}');
+        $controller->setPrefixFormat('{dateTime} {date} {time}');
         $controller->write('', Verbosity::LEVEL_DEBUG);
         $this->assertStringMatchesFormat(
-            '%d-%d-%d %d:%d:%d %d-%d-%d %d:%d:%d DEBUG%w',
+            '%d-%d-%d %d:%d:%d %d-%d-%d %d:%d:%d%w',
             $this->flushOutput($controller)
         );
     }
