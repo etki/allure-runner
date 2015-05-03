@@ -2,13 +2,15 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory;
 
+use Symfony\Component\Process\Process;
 use Codeception\TestCase;
 use PHPUnit_Framework_MockObject_MockBuilder as MockBuilder;
-use Symfony\Component\Process\Process;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 
 /**
  * This class returns prepared process mocks.
+ *
+ * todo inherit from AbstractMockFactory.
  *
  * @version 0.1.0
  * @since   0.1.0

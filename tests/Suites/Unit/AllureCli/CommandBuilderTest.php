@@ -1,8 +1,8 @@
 <?php
 
-namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Environment;
+namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\AllureCli;
 
-use Etki\Testing\AllureFramework\Runner\Environment\CommandBuilder;
+use Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder;
 use Codeception\TestCase\Test;
 use UnitTester;
 
@@ -22,7 +22,7 @@ class CommandBuilderTest extends Test
      * @since 0.1.0
      */
     const TESTED_CLASS
-        = '\Etki\Testing\AllureFramework\Runner\Environment\CommandBuilder';
+        = '\Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder';
     /**
      * Tester instance.
      *
@@ -87,13 +87,29 @@ class CommandBuilderTest extends Test
                     array(
                         'allure.bat',
                         'generate',
-                        '--report-path C:\Temp',
+                        '--report-path C:\\Temp',
                         '--report-version 1.4.9',
                         '--',
                         'D:/Projects/Oldskool/tests/report-data',
                     )
                 ),
-            )
+            ),
+            array(
+                'allure.bat',
+                array('C:\\hryuchevo new'),
+                null,
+                '1.4.9',
+                implode(
+                    ' ',
+                    array(
+                        'allure.bat',
+                        'generate',
+                        '--report-version 1.4.9',
+                        '--',
+                        '"C:\\hryuchevo new"'
+                    )
+                )
+            ),
         );
     }
     

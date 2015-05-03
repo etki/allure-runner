@@ -29,6 +29,13 @@ class FileLocatorFactory
      * @since 0.1.0
      */
     private $runtime;
+    /**
+     * Generated file locator.
+     *
+     * @type FileLocatorInterface
+     * @since 0.1.0
+     */
+    private $fileLocator;
     
     /**
      * Initializer.
@@ -36,6 +43,8 @@ class FileLocatorFactory
      * @param Runtime        $runtime        Current environment runtime.
      * @param ProcessFactory $processFactory Process factory for file locator
      *                                       creation.
+     *
+     * @codeCoverageIgnore
      *
      * @return self
      * @since 0.1.0
@@ -58,13 +67,21 @@ class FileLocatorFactory
      */
     public function getFileLocator()
     {
-        switch ($this->runtime->getOsFamily()) {
-            case Runtime::FAMILY_MAC:
-                return new MacOsFileLocator($this->processFactory);
-            case Runtime::FAMILY_WINDOWS:
-                return new WindowsFileLocator($this->processFactory);
-            default:
-                return new UnixFileLocator($this->processFactory);
+        if (!isset($this->fileLocator)) {
+            switch ($this->runtime->getOsFamily()) {
+                case Runtime::FAMILY_MAC:
+                    $locator = new MacOsFileLocator($this->processFactory);
+                    break;
+                case Runtime::FAMILY_WINDOWS:
+                    $locator = new WindowsFileLocator($this->processFactory);
+                    break;
+                // unix by default -_-
+                default:
+                    $locator = new UnixFileLocator($this->processFactory);
+                    break;
+            }
+            $this->fileLocator = $locator;
         }
+        return $this->fileLocator;
     }
 }

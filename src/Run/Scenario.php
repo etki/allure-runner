@@ -6,9 +6,9 @@ use Etki\Testing\AllureFramework\Runner\AllureCli\Runner;
 use Etki\Testing\AllureFramework\Runner\AllureCli\RunOptions;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver;
+use Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException;
 
 use Exception;
 
@@ -94,29 +94,44 @@ class Scenario
         }
         $runOptions = $this->createRunOptions();
         try {
-            return $this->runner->run($executable, $runOptions, $this->ioController);
+            $exitCode = $this->runner->run($executable, $runOptions);
         } catch (Exception $e) {
-            $this->ioController->writeLine(
-                $e->getMessage(),
-                Verbosity::LEVEL_ERROR
+            $message = sprintf(
+                'Run terminated with exception `%s`:',
+                get_class($e)
             );
-            return $e->getCode();
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
+            $message = $e->getMessage();
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
+            $this->ioController->writeLine(
+                $e->getTraceAsString(),
+                Verbosity::LEVEL_DEBUG
+            );
+            $exitCode = $e->getCode() == 0 ? 127 : $e->getCode();
         }
+        if ($exitCode) {
+            $message = 'Allure CLI has never successfully finished';
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
+        }
+        return $exitCode;
     }
 
     /**
      * Locates Allure executable.
      *
-     * @return string
+     * @throws AllureExecutableNotFoundException Thrown in case Runner couldn't
+     *                                           find Allure executable.
+     *
+     * @return string Allure executable sting (either path to single executable
+     *                file or `<path/to/java> -jar <path/to/jar>` string).
      * @since 0.1.0
      */
     private function getExecutable()
     {
-        $command = $this->allureResolver->getAllureExecutable();
-        if (!$command) {
-            throw new AllureExecutableNotFoundException;
+        if ($command = $this->allureResolver->getAllureExecutable()) {
+            return $command;
         }
-        return $command;
+        throw new AllureExecutableNotFoundException;
     }
 
     /**

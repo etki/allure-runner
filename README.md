@@ -28,14 +28,15 @@ runner to decide himself).
 * `jar`: path to Allure `.jar` file. This differs from executable simply by
 that executable will be called directly, while `.jar` will be called using
 `java -jar`.
-* `autoDownload`: if set to true and both `executable` and `jar` options don't
-provide valid executable, runner will try to automatically fetch latest `.jar`.
-Please notice that runner won't try to install java itself.
+* `downloadMissingJar`: if set to true and both `executable` and `jar` options
+don't provide valid executable, runner will try to automatically fetch latest
+`.jar`. Please notice that runner won't try to install java itself.
 * `throwOnMissingExecutable`: whether to throw exception or not on missing
 executable. This will be set to true in direct API calls and to false in
 framework plugins by default, though you can always override it.
-* `throwOnNonNullResult`: quite the same option that tells to throw exception
-whenever Allure CLI returns something other than 0.
+* `throwOnNonZeroResult`: quite the same option that tells to throw exception
+whenever Allure CLI returns something other than 0. This is set true by default
+and to false in framework plugins. As of 
 
 ### Codeception extension
 
@@ -76,20 +77,14 @@ PHPUnit integration is a little bit difficult because of it's specialty:
             </element>
           </array>
         </element>
-        <element key="suites">
-          <string>supersuite</string>
-        </element>
       </array>
     </arguments>
   </listener>
 </listeners>
 ```
 
-Suites key defines suites after which allure runner should run. Suites can be
-supplied as single string (that will be automatically converted to array) or as
-list of strings. This is a PHPUnit limitation - listener is the only option to
-integrate into PHPUnit, but it can't hook to anything like`onRunEnd` event.
-If no suites will be defined, Allure runner will run after every one.
+Internally, this class won't listen to anything but will launch runner during
+it's own destruction (on script end).
 
 ### Composer script handler
 
@@ -119,3 +114,5 @@ section. All relative paths will be resolved relative to project root.
 * Atoum integration
 * Behat integration
 * PhpSpec integration
+* Current testing hardcodes mocked classes FQCN. This is terribly bad.
+* Classes sometimes are misplaced in their namespaces.

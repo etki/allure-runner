@@ -4,8 +4,8 @@ namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
+use Exception;
 
 /**
  * Jar resolver.
@@ -38,25 +38,44 @@ class JarResolver
      * @since 0.1.0
      */
     private $jarDownloader;
+    /**
+     * `.jar` file locator.
+     *
+     * @type JarLocator
+     * @since 0.1.0
+     */
+    private $jarLocator;
+    /**
+     * Source URL resolver.
+     *
+     * @type JarAssetUrlResolver
+     * @since 0.1.0
+     */
+    private $assetUrlResolver;
 
     /**
      * Initializer.
      *
-     * @param Configuration         $configuration Configuration.
-     * @param JarLocator            $jarLocator    `.jar` file locator.
-     * @param JarDownloader         $jarDownloader `.jar` file downloader.
-     * @param IOControllerInterface $ioController  I\O controller.
-     * @since    0.1.0
+     * @param Configuration         $configuration    Runner configuration.
+     * @param JarLocator            $jarLocator       `.jar` file locator.
+     * @param JarDownloader         $jarDownloader    `.jar` file downloader.
+     * @param JarAssetUrlResolver   $assetUrlResolver Source url resolver
+     * @param IOControllerInterface $ioController     I\O controller.
+     *
+     * @return self
+     * @since 0.1.0
      */
     public function __construct(
         Configuration $configuration,
         JarLocator $jarLocator,
         JarDownloader $jarDownloader,
+        JarAssetUrlResolver $assetUrlResolver,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
         $this->jarLocator = $jarLocator;
         $this->jarDownloader = $jarDownloader;
+        $this->assetUrlResolver = $assetUrlResolver;
         $this->ioController = $ioController;
     }
 
@@ -74,7 +93,7 @@ class JarResolver
             // @todo and file_exists
             return $jar;
         }
-        if ($jar = $this->locateJar()) {
+        if ($jar = $this->jarLocator->getJar()) {
             return $jar;
         }
         if ($this->configuration->shouldDownloadMissingJar()
@@ -119,17 +138,6 @@ class JarResolver
     }
 
     /**
-     * Finds existing `.jar` file location.
-     *
-     * @return null|string
-     * @since 0.1.0
-     */
-    private function locateJar()
-    {
-        return $this->jarLocator->getJar();
-    }
-
-    /**
      * Downloads fresh copy of `.jar` file and returns path to it.
      *
      * @return null|string
@@ -137,7 +145,34 @@ class JarResolver
      */
     private function downloadJar()
     {
-        // @todo
-        return null ? null : '';
+        $location = null;
+        try {
+            $url = $this->assetUrlResolver->resolveUrl();
+            if (!$url) {
+                $message
+                    = 'Couldn\'t resolve link to `.jar` file download source';
+                $this->ioController->writeLine(
+                    $message,
+                    Verbosity::LEVEL_WARNING
+                );
+                return null;
+            }
+            $location = $this->jarDownloader->downloadJar($url);
+        } catch (Exception $e) {
+            $message = sprintf(
+                '`.jar` file download has failed with `%s` exception',
+                get_class($e)
+            );
+            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
+            $this->ioController->writeLine(
+                $e->getMessage(),
+                Verbosity::LEVEL_NOTICE
+            );
+            $this->ioController->writeLine(
+                $e->getTraceAsString(),
+                Verbosity::LEVEL_DEBUG
+            );
+        }
+        return $location;
     }
 }

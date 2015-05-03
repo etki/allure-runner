@@ -1,6 +1,6 @@
 <?php
 
-namespace Etki\Testing\AllureFramework\Runner\Helper;
+namespace Etki\Testing\AllureFramework\Runner\Utility\Helper;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;

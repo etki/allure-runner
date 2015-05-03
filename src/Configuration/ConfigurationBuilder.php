@@ -2,6 +2,8 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Configuration;
 
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver;
+
 /**
  * Creates configuration and populates with default values.
  *
@@ -12,9 +14,14 @@ namespace Etki\Testing\AllureFramework\Runner\Configuration;
  */
 class ConfigurationBuilder
 {
-    public function build()
+    // @todo
+    public function build(PathResolver $pathResolver)
     {
         $configuration = new Configuration;
+    }
+    
+    public function populate(Configuration $configuration, array $values)
+    {
         
     }
 }

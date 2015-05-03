@@ -10,6 +10,6 @@ namespace Etki\Testing\AllureFramework\Runner\Exception;
  * @package Etki\Testing\AllureFramework\Runner\Exception
  * @author  Etki <etki@etki.name>
  */
-interface AllureRunnerException
+interface AllureRunnerExceptionInterface
 {
 }

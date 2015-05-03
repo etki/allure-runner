@@ -3,6 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory;
 use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
@@ -34,18 +35,20 @@ class JarLocator
     /**
      * Initializer.
      *
-     * @param FileLocatorInterface  $fileLocator File locator instance.
-     * @param IOControllerInterface $ioc         I\O controller.
+     * @param FileLocatorFactory    $fileLocatorFactory File locator instance.
+     * @param IOControllerInterface $ioController       I\O controller.
+     *
+     * @codeCoverageIgnore
      *
      * @return self
      * @since 0.1.0
      */
     public function __construct(
-        FileLocatorInterface $fileLocator,
-        IOControllerInterface $ioc
+        FileLocatorFactory $fileLocatorFactory,
+        IOControllerInterface $ioController
     ) {
-        $this->fileLocator = $fileLocator;
-        $this->ioController = $ioc;
+        $this->fileLocator = $fileLocatorFactory->getFileLocator();
+        $this->ioController = $ioController;
     }
 
     /**

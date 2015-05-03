@@ -4,26 +4,65 @@
 # services to be set by hand
 # - @io_controller (optional) - Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface - will replace default do-nothing blackhole dummy
 # - @service_container - Symfony\Component\DependencyInjection\Container
-# - @file_locator - Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface
+# - @path_resolver - Etki\Testing\AllureFramework\Runner\Utility\PathResolver
+# - @validator - Symfony\Component\Validator\Validator\ValidatorInterface
+
+# @todo extra symfony_filesystem is just ridiculous.
 
 parameters:
 services:
   php_api:
     class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi
+  php_filesystem_api:
+    class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem
   runtime:
     class: Etki\Testing\AllureFramework\Runner\Environment\Runtime
     arguments:
       - @php_api
-  filesystem_helper:
-    class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem
-  zip_extractor:
-    class: Etki\Testing\AllureFramework\Runner\Utility\Extractor
-  downloader:
-    class: Etki\Testing\AllureFramework\Runner\Utility\Downloader
+  symfony_filesystem:
+    class: Symfony\Component\Filesystem\Filesystem
   io_controller:
     class: Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController
   runtime:
     class: Etki\Testing\AllureFramework\Runner\Environment\Runtime
+  uuid_factory:
+    class: Etki\Testing\AllureFramework\Runner\Utility\UuidFactory
+  guzzle:
+    class: Guzzle\Http\Client
+  github_api_client:
+    class: Github\Client
+  github_release_asset_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver
+    arguments:
+      - @github_api_client
+  github_lastest_release_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Api\Github\LatestReleaseResolver
+    arguments:
+      - @github_api_client
+  configuration_validator:
+    class: Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator
+    arguments:
+      - @validator
+      - @io_controller
+  filesystem_helper:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem
+    arguments:
+      - @php_filesystem_api
+      - @symfony_filesystem
+      - @uuid_factory
+  temporary_filesystem_nodes_manager:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager
+    arguments:
+      - @filesystem_helper
+  zip_extractor:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Extractor
+    arguments:
+      - @filesystem_helper
+      - @temporary_filesystem_nodes_manager
+  downloader:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Downloader
+    arguments:
+      - @guzzle
   process_factory:
     class: Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory
   file_locator_factory:
@@ -31,22 +70,15 @@ services:
     arguments:
       - @runtime
       - @process_factory
-  scenario:
-    class: Etki\Testing\AllureFramework\Runner\Run\Scenario
-    arguments:
-      - %configuration%
-      - @allure_resolver
-      - @runner
-      - @io_controller
   java_locator:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JavaExecutableLocator
     arguments:
-      - @file_locator
+      - @file_locator_factory
       - @io_controller
   jar_locator:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarLocator
     arguments:
-      - @file_locator
+      - @file_locator_factory
       - @io_controller
   jar_downloader:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader
@@ -54,24 +86,56 @@ services:
       - @downloader
       - @zip_extractor
       - @io_controller
-      - @php_api
+      - @filesystem_helper
+  jar_asset_url_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetUrlResolver
+    arguments:
+      - %configuration%
+      - @github_release_asset_resolver
+      - @github_lastest_release_resolver
+      - @io_controller
   jar_resolver:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarResolver
     arguments:
       - %configuration% 
       - @jar_locator
       - @jar_downloader
+      - @jar_asset_url_resolver
       - @io_controller
   allure_resolver:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver
     arguments:
       - %configuration%
-      - @file_locator
+      - @file_locator_factory
       - @java_locator
       - @jar_resolver
       - @io_controller
+  allure_output_formatter:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\OutputFormatter
+  allure_output_parser:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser
+  bridge_factory:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\OutputBridgeFactory
+    arguments:
+      - @allure_output_formatter
+      - @io_controller
+  run_factory:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\RunFactory
+    arguments:
+      - @process_factory
+      - @bridge_factory
+      - @allure_output_parser
+  command_builder:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder
   runner:
     class: Etki\Testing\AllureFramework\Runner\AllureCli\Runner
     arguments:
-      - @process_factory
-    
+      - @run_factory
+      - @command_builder
+  scenario:
+    class: Etki\Testing\AllureFramework\Runner\Run\Scenario
+    arguments:
+      - %configuration%
+      - @allure_resolver
+      - @runner
+      - @io_controller

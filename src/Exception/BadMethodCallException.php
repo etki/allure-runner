@@ -13,6 +13,6 @@ use BadMethodCallException as SplBadMethodCallException;
  * @author  Etki <etki@etki.name>
  */
 class BadMethodCallException extends SplBadMethodCallException implements
-    AllureRunnerException
+    AllureRunnerExceptionInterface
 {
 }

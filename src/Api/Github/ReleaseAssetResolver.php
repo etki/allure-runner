@@ -38,7 +38,9 @@ class ReleaseAssetResolver
     /**
      * Retrieves assets for specified release.
      *
-     * @param string $tag Release name / version.
+     * @param string $owner      Github repository owner.
+     * @param string $repository Github repository name.
+     * @param string $tag        Release name / version.
      *
      * @return array List of assets.
      * @since 0.1.0
@@ -66,8 +68,8 @@ class ReleaseAssetResolver
      */
     private function getRelease($owner, $repository, $tag)
     {
-        $releasesApi = $this->api->repos()->releases();
-        $releases = $releasesApi->all($owner, $repository);
+        $releaseApi = $this->api->repos()->releases();
+        $releases = $releaseApi->all($owner, $repository);
         foreach ($releases as $release) {
             if ($release['tag_name'] === $tag || $release['name'] === $tag) {
                 return $release;

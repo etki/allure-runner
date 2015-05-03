@@ -28,11 +28,13 @@ class Downloader
     /**
      * Initializer.
      *
+     * @param Client $guzzle Guzzle client.
+     *
      * @since 0.1.0
      */
-    public function __construct()
+    public function __construct(Client $guzzle)
     {
-        $this->guzzle = new Client;
+        $this->guzzle = $guzzle;
     }
 
     /**

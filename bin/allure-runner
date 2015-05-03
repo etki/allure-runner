@@ -4,4 +4,31 @@
 // Of course there is no point of running a runner. This file has been made just
 // to ease testing process a little bit.
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
+use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
+use Etki\Testing\AllureFramework\Runner\IO\Controller\ConsoleIOController;
+use Etki\Testing\AllureFramework\Runner\IO\Writer\EchoWriter;
+use Etki\Testing\AllureFramework\Runner\Runner;
+
+$projectRoot = dirname(__DIR__);
+
+$autoloadLocations = array(
+    $projectRoot . '/vendor/autoload.php',
+    dirname(dirname($projectRoot)) . '/autoload.php',
+);
+
+foreach ($autoloadLocations as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+    }
+}
+
+$configuration = new Configuration;
+$configuration->addSource($projectRoot . '/tests/Output/Data/Allure');
+$configuration->setReportPath($projectRoot . '/tests/Output/Reports/Allure');
+$configuration->setVerbosity(Verbosity::LEVEL_DEBUG);
+
+$ioController = new ConsoleIOController(new EchoWriter, Verbosity::LEVEL_DEBUG);
+
+$runner = new Runner($configuration, $ioController);
+$runner->run();

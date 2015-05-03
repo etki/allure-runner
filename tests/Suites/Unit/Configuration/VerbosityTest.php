@@ -85,8 +85,8 @@ class VerbosityTest extends Test
         );
         $expectedResult = array(
             Verbosity::LEVEL_DEBUG,
-            Verbosity::LEVEL_NOTICE,
             Verbosity::LEVEL_INFO,
+            Verbosity::LEVEL_NOTICE,
             Verbosity::LEVEL_WARNING,
             Verbosity::LEVEL_ERROR,
             Verbosity::LEVEL_MUTE,

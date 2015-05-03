@@ -17,31 +17,31 @@ class PhpApi
      *
      * @since 0.1.0
      */
-    const UNAME_ARCHITECTURE_MODE = 'm';
+    const UNAME_MODE_ARCHITECTURE = 'm';
     /**
      * Mode for outputting operating system version.
      *
      * @since 0.1.0
      */
-    const UNAME_VERSION_MODE = 'v';
+    const UNAME_MODE_VERSION = 'v';
     /**
      * Mode for outputting operating system release number.
      *
      * @since 0.1.0
      */
-    const UNAME_RELEASE_NUMBER_MODE = 'r';
+    const UNAME_MODE_RELEASE_NUMBER = 'r';
     /**
      * Mode for outputting host name.
      *
      * @since 0.1.0
      */
-    const UNAME_HOST_NAME_MODE = 'n';
+    const UNAME_MODE_HOST_NAME = 'n';
     /**
      * Mode for outputting system name.
      *
      * @since 0.1.0
      */
-    const UNAME_OPERATING_SYSTEM_NAME_MODE = 's';
+    const UNAME_MODE_OPERATING_SYSTEM_NAME = 's';
     /**
      * Mode for outputting full uname string.
      *
@@ -62,18 +62,5 @@ class PhpApi
     public function uname($mode = null)
     {
         return php_uname($mode);
-    }
-
-    /**
-     * Returns path for system temporary files folder.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return string
-     * @since 0.1.0
-     */
-    public function getSystemTemporaryFilesDirectory()
-    {
-        return sys_get_temp_dir();
     }
 }

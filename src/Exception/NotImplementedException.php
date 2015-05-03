@@ -2,8 +2,6 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Exception;
 
-use Exception;
-
 /**
  * Dummy exception to fill out the places where functionality hasn't been
  * implemented.
@@ -13,6 +11,7 @@ use Exception;
  * @package Etki\Testing\AllureFramework\Runner\Exception
  * @author  Etki <etki@etki.name>
  */
-class NotImplementedException extends Exception
+class NotImplementedException extends LogicException
+    implements AllureRunnerExceptionInterface
 {
 }

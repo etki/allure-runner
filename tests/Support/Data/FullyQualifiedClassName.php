@@ -3,7 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Data;
 
 /**
- *
+ * FQCN processor.
  *
  * @version 0.1.0
  * @since   0.1.0

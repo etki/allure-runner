@@ -3,11 +3,14 @@
 namespace Etki\Testing\AllureFramework\Runner;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
+use Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator;
+use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
-use Etki\Testing\AllureFramework\Runner\Helper\ConfigurationDumper;
+use Etki\Testing\AllureFramework\Runner\Utility\Helper\ConfigurationDumper;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Run\Scenario;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder
     as Container;
 
@@ -63,14 +66,15 @@ class Runner
         IOControllerInterface $ioController = null,
         Container $container = null
     ) {
-        $this->validateConfiguration($configuration);
         if (!$container) {
             $container = $this->createContainer($configuration, $ioController);
         }
         $this->container = $container;
         $this->configuration = $configuration;
         $this->ioController = $ioController ?: $container->get('io_controller');
-        $this->configureIoController();
+        $this->configureIoController($this->ioController);
+        $message = 'Allure Runner has successfully initialized';
+        $this->ioController->writeLine($message, Verbosity::LEVEL_DEBUG);
     }
 
     /**
@@ -90,10 +94,9 @@ class Runner
     ) {
         $builder = new ContainerBuilder;
         $projectRoot = dirname(__DIR__);
-        $configurationFilePath = $projectRoot . DIRECTORY_SEPARATOR .
-            Configuration::CONTAINER_CONFIGURATION_FILE_PATH;
+        $pathResolver = new PathResolver($projectRoot);
         $container = $builder->build(
-            $configurationFilePath,
+            $pathResolver,
             $configuration,
             $ioController
         );
@@ -108,32 +111,40 @@ class Runner
      */
     public function run()
     {
+        $this->ioController->writeLine(
+            'Starting Allure CLI processing',
+            Verbosity::LEVEL_NOTICE
+        );
         $dumper = new ConfigurationDumper;
         $dumper->dump($this->configuration, $this->ioController);
         /** @type Scenario $scenario */
         $scenario = $this->container->get('scenario');
-        $scenario->run();
+        if (!$this->validateConfiguration($this->configuration)) {
+            // todo
+        }
+        return $scenario->run();
     }
 
     /**
      * Configures I/O controller - sets verbosity and output prefix.
      *
+     * @param IOControllerInterface $ioController I/O controller.
+     *
      * @return void
      * @since 0.1.0
      */
-    private function configureIoController()
+    private function configureIoController($ioController)
     {
         if ($this->configuration->getVerbosity()) {
             $verbosity = $this->configuration->getVerbosity();
-            $this->ioController->setVerbosity($verbosity);
+            $ioController->setVerbosity($verbosity);
         }
         if ($this->configuration->getOutputPrefixFormat()
-            && $this->ioController instanceof PrefixAwareIOControllerInterface
+            && $ioController instanceof PrefixAwareIOControllerInterface
         ) {
             $prefixFormat = $this->configuration->getOutputPrefixFormat();
-            $this->ioController->setPrefixFormat($prefixFormat);
+            $ioController->setPrefixFormat($prefixFormat);
         }
-        
     }
 
     /**
@@ -146,10 +157,8 @@ class Runner
      */
     private function validateConfiguration(Configuration $configuration)
     {
-        // $validator =
-        // if (!$validate
-        // throw new BadConfigurationException. 
-            
-        return true;
+        /** @type ConfigurationValidator $validator */
+        $validator = $this->container->get('configuration_validator');
+        return $validator->validate($configuration);
     }
 }

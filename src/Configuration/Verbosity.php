@@ -59,8 +59,8 @@ class Verbosity
      */
     private static $levelWeights = array(
         self::LEVEL_DEBUG => 1,
-        self::LEVEL_NOTICE => 2,
-        self::LEVEL_INFO => 3,
+        self::LEVEL_INFO => 2,
+        self::LEVEL_NOTICE => 3,
         self::LEVEL_WARNING => 4,
         self::LEVEL_ERROR => 5,
         self::LEVEL_MUTE => 99,

@@ -15,14 +15,17 @@ class ResultOutputParser
     /**
      * Detects if run was successful using Allure CLI output.
      *
-     * @param string $output Allure CLI output.
+     * @param string $output        Allure CLI output.
+     * @param string $allureVersion Allure version. Currently unused.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
      * @return bool|null True for successful run, false for unsuccessful or null
      * if can't determine.
      * @since 0.1.0
      */
-    public function detectSuccess($output)
+    public function isSuccessfulRun($output, $allureVersion = null)
     {
-        return (bool) preg_match('~\bsuccessfully\b~', $output);
+        return (bool) preg_match('~\bsuccessfully\b~iu', $output);
     }
 }

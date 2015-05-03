@@ -2,10 +2,6 @@
 
 namespace Etki\Testing\AllureFramework\Runner\AllureCli;
 
-use Etki\Testing\AllureFramework\Runner\Environment\CommandBuilder;
-use Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory;
-use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
-
 /**
  * The real allure runner, no kidding.
  *
@@ -24,24 +20,34 @@ class Runner
     const SOFTWARE_NAME = 'Allure CLI';
 
     /**
-     * Process factory instance.
+     * Run process factory instance.
      *
-     * @type ProcessFactory
+     * @type RunFactory
      * @since 0.1.0
      */
-    private $processFactory;
+    private $runFactory;
+    /**
+     * Command builder.
+     *
+     * @type CommandBuilder
+     * @since 0.1.0
+     */
+    private $commandBuilder;
 
     /**
      * Initializer.
      *
-     * @param ProcessFactory $processFactory Process factory instance.
+     * @param RunFactory     $runFactory     Run process factory instance.
+     * @param CommandBuilder $commandBuilder Command builder.
      *
-     * @return self
      * @since 0.1.0
      */
-    public function __construct(ProcessFactory $processFactory)
-    {
-        $this->processFactory = $processFactory;
+    public function __construct(
+        RunFactory $runFactory,
+        CommandBuilder $commandBuilder
+    ) {
+        $this->runFactory = $runFactory;
+        $this->commandBuilder = $commandBuilder;
     }
 
     /**
@@ -49,25 +55,21 @@ class Runner
      *
      * @param string                $executable   Path to executable.
      * @param RunOptions            $options      Run options.
-     * @param IOControllerInterface $ioController I\O controller.
      *
      * @return int
      * @since 0.1.0
      */
     public function run(
         $executable,
-        RunOptions $options,
-        IOControllerInterface $ioController = null
+        RunOptions $options
     ) {
-        $builder = new CommandBuilder;
-        $command = $builder->buildGenerateCommand(
+        $command = $this->commandBuilder->buildGenerateCommand(
             $executable,
             $options->getSources(),
             $options->getReportPath(),
             $options->getReportVersion()
         );
-        $process = $this->processFactory->getProcess($command);
-        $run = new Run($process, $ioController);
+        $run = $this->runFactory->getRun($command);
         return $run->run();
     }
 }

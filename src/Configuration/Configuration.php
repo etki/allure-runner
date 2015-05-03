@@ -3,6 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Configuration;
 
 use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Allure runner configuration.
@@ -27,8 +28,33 @@ class Configuration
      *
      * @since 0.1.0
      */
-    const CONTAINER_CONFIGURATION_FILE_PATH
-        = 'resources/configuration/container.yml';
+    const CONTAINER_CONFIGURATION_FILE_NAME = 'container.yml';
+    /**
+     * Username (orgname) of the corresponding repository owner on github.
+     *
+     * @since 0.1.0
+     */
+    const GITHUB_REPOSITORY_OWNER = 'allure-framework';
+    /**
+     * Name of the corresponding repository on github.
+     *
+     * @since 0.1.0
+     */
+    const GITHUB_REPOSITORY_NAME = 'allure-cli';
+    /**
+     * Exit code used for errors.
+     *
+     * @since 0.1.0
+     */
+    const GENERIC_ERROR_EXIT_CODE = 127;
+    /**
+     * This flag enables whole processing and allows to switch extension off
+     * by setting a single flag.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $enabled = false;
     /**
      * List of report sources.
      *
@@ -67,7 +93,7 @@ class Configuration
     /**
      * Verbosity level for I\O controllers.
      *
-     * @type int
+     * @type string
      * @since 0.1.0
      */
     private $verbosity = Verbosity::LEVEL_INFO;
@@ -93,6 +119,65 @@ class Configuration
      * @since 0.1.0
      */
     private $preferredAllureVersion = '2.3';
+    /**
+     * This option tells runner to throw exception whenever executable can't be
+     * found.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $throwOnMissingExecutable = true;
+    /**
+     * This option tells runner to throw exception whenever executable returns
+     * return code other than zero.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $throwOnNonZeroResult = true;
+    /**
+     * This option tells runner to throw exception if configuration hasn't
+     * passed validation.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $throwOnInvalidConfiguration = false;
+    /**
+     * Whether to clean generated files or leave them.
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $cleanGeneratedFiles = true;
+    /**
+     * Location of temporary directory.
+     *
+     * todo, currently unsupported
+     *
+     * @type string
+     * @since 0.1.0
+     */
+    private $temporaryDirectory;
+    /**
+     * This flag determines whether runner should use VFS for it's operations or
+     * regular disk.
+     *
+     * todo, currently unsupported
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $useVfs = false;
+    /**
+     * Forces dry run.
+     *
+     * todo, currently unsupported
+     *
+     * @type bool
+     * @since 0.1.0
+     */
+    private $dryRun = false;
 
     /**
      * Adds several sources at once.
@@ -138,12 +223,39 @@ class Configuration
     /**
      * Returns source paths for report generation.
      *
+     * @Assert\Count(min="1")
+     *
      * @return string[] List of paths to source directories.
      * @since 0.1.0
      */
     public function getSources()
     {
         return array_values($this->sources);
+    }
+
+    /**
+     * Tells if runner is enabled.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Sets enabled flag.
+     *
+     * @param bool $enabled Flag.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setIsEnabled($enabled)
+    {
+        $this->enabled = (bool) $enabled;
+        return $this;
     }
 
     /**
@@ -249,7 +361,7 @@ class Configuration
     /**
      * Returns verbosity.
      *
-     * @return int
+     * @return string
      * @since 0.1.0
      */
     public function getVerbosity()
@@ -260,10 +372,10 @@ class Configuration
     /**
      * Sets verbosity.
      *
-     * @param int $verbosity Verbosity.
+     * @param string $verbosity Verbosity.
      *
      * @return $this Current instance.
-     * @since
+     * @since 0.1.0
      */
     public function setVerbosity($verbosity)
     {
@@ -347,4 +459,135 @@ class Configuration
         $this->preferredAllureVersion = $preferredAllureVersion;
         return $this;
     }
+
+    /**
+     * Tells if runner should throw an exception on missing executable or simply
+     * return bad run result.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function shouldThrowOnMissingExecutable()
+    {
+        return $this->throwOnMissingExecutable;
+    }
+
+    /**
+     * Sets throwOnMissingExecutable.
+     *
+     * @param bool $throwOnMissingExecutable Whether runner should or should not
+     *                                       throw an exception.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setThrowOnMissingExecutable($throwOnMissingExecutable)
+    {
+        $this->throwOnMissingExecutable = $throwOnMissingExecutable;
+        return $this;
+    }
+
+    /**
+     * Tells if runner should throw an exception on non-zero result.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function shouldThrowOnNonZeroResult()
+    {
+        return $this->throwOnNonZeroResult;
+    }
+
+    /**
+     * Sets throwOnNonZeroResult.
+     *
+     * @param bool $throwOnNonZeroResult ThrowOnNonZeroResult.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setThrowOnNonZeroResult($throwOnNonZeroResult)
+    {
+        $this->throwOnNonZeroResult = $throwOnNonZeroResult;
+        return $this;
+    }
+
+    /**
+     * Tells if an exception should be thrown on invalid configuration.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function shouldThrowOnInvalidConfiguration()
+    {
+        return $this->throwOnInvalidConfiguration;
+    }
+
+    /**
+     * Sets throwOnInvalidConfiguration.
+     *
+     * @param bool $throwOnInvalidConfiguration ThrowOnInvalidConfiguration.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setThrowOnInvalidConfiguration($throwOnInvalidConfiguration)
+    {
+        $this->throwOnInvalidConfiguration = $throwOnInvalidConfiguration;
+        return $this;
+    }
+
+    /**
+     * Tells if Allure runner should delete it's generated files.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function shouldCleanGeneratedFiles()
+    {
+        return $this->cleanGeneratedFiles;
+    }
+
+    /**
+     * Sets cleanGeneratedFiles.
+     *
+     * @param bool $cleanGeneratedFiles CleanGeneratedFiles.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setCleanGeneratedFiles($cleanGeneratedFiles)
+    {
+        $this->cleanGeneratedFiles = (bool) $cleanGeneratedFiles;
+        return $this;
+    }
+
+//    /**
+//     * Returns path to temporary directory.
+//     *
+//     * @return string
+//     * @since 0.1.0
+//     */
+//    public function getTemporaryDirectory()
+//    {
+//        return $this->temporaryDirectory;
+//    }
+//
+//    /**
+//     * Sets temporary directory.
+//     *
+//     * @param string $temporaryDirectory Path to temporary directory.
+//     *
+//     * @return $this Current instance.
+//     * @since 0.1.0
+//     */
+//    public function setTemporaryDirectory($temporaryDirectory)
+//    {
+//        $this->temporaryDirectory = $temporaryDirectory;
+//        return $this;
+//    }
 }

@@ -73,18 +73,18 @@ final class Runtime
      */
     private function detectOsFamily()
     {
-        $uname = $this->phpApi->uname(PhpApi::UNAME_OPERATING_SYSTEM_NAME_MODE);
+        $uname = $this->phpApi->uname(PhpApi::UNAME_MODE_OPERATING_SYSTEM_NAME);
         if ($uname === 'Darwin') {
-            $this->family = self::FAMILY_MAC;
+            $family = self::FAMILY_MAC;
         } elseif ($uname === 'Linux') {
-            $this->family = self::FAMILY_LINUX;
+            $family = self::FAMILY_LINUX;
         } elseif (substr(strtolower($uname), 0, 3) === 'win') {
-            $this->family = self::FAMILY_WINDOWS;
+            $family = self::FAMILY_WINDOWS;
         } else {
             // unix by default lol
-            $this->family = self::FAMILY_UNIX;
+            $family = self::FAMILY_UNIX;
         }
-        return $this->family;
+        return $family;
     }
 
     /**
@@ -96,7 +96,7 @@ final class Runtime
     public function getOsFamily()
     {
         if (!isset($this->family)) {
-            $this->detectOsFamily();
+            $this->family = $this->detectOsFamily();
         }
         return $this->family;
     }

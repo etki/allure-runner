@@ -1,6 +1,6 @@
 <?php
 
-namespace Etki\Testing\AllureFramework\Runner\Utility;
+namespace Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
 
 /**
  * Returns different project paths.

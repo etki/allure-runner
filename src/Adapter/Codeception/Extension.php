@@ -39,6 +39,9 @@ class Extension extends CodeceptionExtension
      */
     public function generateReport(PrintResultEvent $event)
     {
+        if ($event->getResult()->count() > 1) {
+            // todo make a configuration option
+        }
         $printer = $event->getPrinter();
         $writer = new PrinterWrapper($printer);
         $ioController = new ConsoleIOController($writer);

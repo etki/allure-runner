@@ -4,6 +4,7 @@ namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory;
 use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
@@ -32,36 +33,50 @@ class AllureExecutableResolver
      */
     private $ioController;
     /**
-     *
+     * File locator.
      *
      * @type FileLocatorInterface
      * @since 0.1.0
      */
     private $fileLocator;
+    /**
+     * Java executable locator.
+     *
+     * @type JavaExecutableLocator
+     * @since 0.1.0
+     */
     private $javaLocator;
+    /**
+     * Jar file resolver.
+     *
+     * @type JarResolver
+     * @since 0.1.0
+     */
     private $jarResolver;
     
     /**
      * Initializer.
      *
-     * @param Configuration         $configuration Run configuration.
-     * @param FileLocatorInterface  $fileLocator   File locator for current OS.
-     * @param JavaExecutableLocator $javaLocator   Java executable locator.
-     * @param JarResolver           $jarResolver   Allure `.jar` file resolver.
-     * @param IOControllerInterface $ioController  I\O controller instance.
+     * @param Configuration         $configuration      Run configuration.
+     * @param FileLocatorFactory    $fileLocatorFactory File locator for current
+     *                                                  OS.
+     * @param JavaExecutableLocator $javaLocator        Java executable locator.
+     * @param JarResolver           $jarResolver        Allure `.jar` file
+     *                                                  resolver.
+     * @param IOControllerInterface $ioController       I\O controller instance.
      *
      * @return self
      * @since 0.1.0
      */
     public function __construct(
         Configuration $configuration,
-        FileLocatorInterface $fileLocator,
+        FileLocatorFactory $fileLocatorFactory,
         JavaExecutableLocator $javaLocator,
         JarResolver $jarResolver,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
-        $this->fileLocator = $fileLocator;
+        $this->fileLocator = $fileLocatorFactory->getFileLocator();
         $this->javaLocator = $javaLocator;
         $this->jarResolver = $jarResolver;
         $this->ioController = $ioController;
@@ -86,7 +101,7 @@ class AllureExecutableResolver
         }
         $message = 'Failed to find both Allure executable file and Java ' .
             'executable and/or Allure `.jar` file';
-        $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
+        $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
         return null;
     }
 

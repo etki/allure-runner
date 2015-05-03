@@ -1,9 +1,9 @@
 actor: Tester
 paths:
   tests: tests/Suites
-  log: tests/Output/Reports
+  log: tests/Output/Reports/Codeception
   data: tests/Data
-  helpers: tests/Support
+  helpers: tests/Support/Codeception
 settings:
   bootstrap: _bootstrap.php
   colors: true
@@ -16,7 +16,7 @@ coverage:
 extensions:
   enabled:
     - Yandex\Allure\Adapter\AllureAdapter
-    - Etki\Shortcut\AllureRunner\Codeception
+    #- Etki\Shortcut\AllureRunner\Codeception
   config:
     Yandex\Allure\Adapter\AllureAdapter:
       deletePreviousResults: true
@@ -25,4 +25,4 @@ extensions:
       enabled: false
       verbosity: debug
       outputPrefixFormat: "{dateTime} {software} {level}"
-      sources: [../Data/Allure]
+      sources: [../../Data/Allure]

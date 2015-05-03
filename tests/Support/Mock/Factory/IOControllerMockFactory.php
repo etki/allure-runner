@@ -10,6 +10,8 @@ use PHPUnit_Framework_MockObject_MockObject as Mock;
 /**
  * Factory for I\O controller.
  *
+ * todo inherit from AbstractMockFactory.
+ *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory

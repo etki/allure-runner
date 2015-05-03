@@ -12,6 +12,7 @@ use LogicException as SplLogicException;
  * @package Etki\Testing\AllureFramework\Runner\Exception
  * @author  Etki <etki@etki.name>
  */
-class LogicException extends SplLogicException implements AllureRunnerException
+class LogicException extends SplLogicException implements
+    AllureRunnerExceptionInterface
 {
 }

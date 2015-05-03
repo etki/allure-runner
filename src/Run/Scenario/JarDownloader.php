@@ -6,6 +6,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Utility\Downloader;
 use Etki\Testing\AllureFramework\Runner\Utility\Extractor;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
 use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
 
 /**
@@ -40,12 +41,12 @@ class JarDownloader
      */
     private $ioController;
     /**
-     * PHP API class instance.
+     * Filesystem helper.
      *
-     * @type PhpApi
+     * @type Filesystem
      * @since 0.1.0
      */
-    private $phpApi;
+    private $filesystem;
 
     /**
      * Initializer.
@@ -53,7 +54,7 @@ class JarDownloader
      * @param Downloader            $downloader   Downloader instance.
      * @param Extractor             $extractor    Extractor instance.
      * @param IOControllerInterface $ioController I\O controller.
-     * @param PhpApi                $phpApi       PHP API instance.
+     * @param Filesystem            $filesystem   PHP filesystem API instance.
      *
      * @return self
      * @since 0.1.0
@@ -62,12 +63,12 @@ class JarDownloader
         Downloader $downloader,
         Extractor $extractor,
         IOControllerInterface $ioController,
-        PhpApi $phpApi
+        Filesystem $filesystem
     ) {
         $this->downloader = $downloader;
         $this->extractor = $extractor;
         $this->ioController = $ioController;
-        $this->phpApi = $phpApi;
+        $this->filesystem = $filesystem;
     }
 
     /**
@@ -77,19 +78,27 @@ class JarDownloader
      *
      * @SuppressWarnings(PHPMD.LongVariableName)
      *
-     * @return string
+     * @return string Downloaded file location.
      * @since 0.1.0
      */
     public function downloadJar($url)
     {
-        $temporaryFilesDirectory
-            = $this->phpApi->getSystemTemporaryFilesDirectory();
-        $temporaryFile = tempnam($temporaryFilesDirectory, 'allure-cli-');
-        $message = sprintf('Downloading jar file to `%s`... ', $temporaryFile);
+        $temporaryFile = $this->filesystem->createTemporaryFile(
+            $this->filesystem->getTemporaryDirectory(),
+            'allure-cli-zip'
+        );
+        $message = sprintf(
+            'Downloading Allure CLI zip archive from `%s` to `%s`... ',
+            $url,
+            $temporaryFile
+        );
         $this->ioController->write($message, Verbosity::LEVEL_DEBUG);
         $this->downloader->download($url, $temporaryFile);
         $this->ioController->writeLine('Done.', Verbosity::LEVEL_DEBUG);
-        $target = $temporaryFilesDirectory . '/allure-cli.jar';
+        $target = $this->filesystem->createTemporaryFile(
+            $this->filesystem->getTemporaryDirectory(),
+            'allure-cli-jar'
+        );
         $file = 'lib/allure-cli.jar';
         $message = sprintf('Extracting jar file to `%s`... ', $target);
         $this->ioController->write($message);

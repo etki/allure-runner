@@ -93,13 +93,14 @@ class Builder
             $sources = array($sources,);
         }
         $filesystem = new Filesystem;
-        $filesystemUtility = new FilesystemUtility;
+        // todo
+        //$filesystemUtility = new FilesystemUtility;
         foreach ($sources as &$source) {
             $prefix = null;
             if (!$filesystem->isAbsolutePath($source)) {
                 $prefix = rtrim(CodeceptionConfiguration::outputDir(), '\\/');
             }
-            $source = $filesystemUtility->normalizePath($source, $prefix);
+            //$source = $filesystemUtility->normalizePath($source, $prefix);
         }
         return $sources;
     }

@@ -26,7 +26,7 @@ class AllureExecutableNotFoundException extends RuntimeException
      * @since 0.1.0
      */
     public function __construct(
-        $message = null,
+        $message = '',
         $code = 0,
         Exception $previous = null
     ) {

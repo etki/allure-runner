@@ -37,6 +37,8 @@ class RunOptions
     /**
      * Returns reportPath.
      *
+     * @codeCoverageIgnore
+     *
      * @return string
      * @since 0.1.0
      */

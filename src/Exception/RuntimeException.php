@@ -13,6 +13,6 @@ use RuntimeException as SplRuntimeException;
  * @author  Etki <etki@etki.name>
  */
 class RuntimeException extends SplRuntimeException implements
-    AllureRunnerException
+    AllureRunnerExceptionInterface
 {
 }
