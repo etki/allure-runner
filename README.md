@@ -1,3 +1,9 @@
+# WIP
+
+This project is in active development, anything may change at any moment and
+nothing is claimed to be working by now; documentation is mostly lying and
+several dogs are required to launch this program. 
+
 # Allure CLI runner
 
 Hi there.
@@ -94,7 +100,7 @@ Allure runner hooks into Composer just as any other package:
 {
   "scripts": {
     "test": [
-      "Etki\Shortcut\AllureRunner\Composer::generateReport"
+      "Etki\\Shortcut\\AllureRunner\\Composer::generateReport"
     ]
   },
   "extra": {
