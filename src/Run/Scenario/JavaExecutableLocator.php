@@ -3,8 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
 /**
@@ -20,7 +19,7 @@ class JavaExecutableLocator
     /**
      * File locator instance.
      *
-     * @type FileLocatorInterface
+     * @type FileLocator
      * @since 0.1.0
      */
     private $fileLocator;
@@ -35,18 +34,18 @@ class JavaExecutableLocator
     /**
      * Initializer.
      *
-     * @param FileLocatorFactory    $fileLocatorFactory File locator factory.
-     * @param IOControllerInterface $ioController       I\O controller.
+     * @param FileLocator           $fileLocator  File locator.
+     * @param IOControllerInterface $ioController I\O controller.
      *
      * @return self
      * @since 0.1.0
      */
     public function __construct(
-        FileLocatorFactory $fileLocatorFactory,
+        FileLocator $fileLocator,
         IOControllerInterface $ioController
     ) {
         $this->ioController = $ioController;
-        $this->fileLocator = $fileLocatorFactory->getFileLocator();
+        $this->fileLocator = $fileLocator;
     }
 
     /**
@@ -57,14 +56,16 @@ class JavaExecutableLocator
      */
     public function getJavaExecutable()
     {
-        $message = 'Searching for java executable';
+        $message = 'Searching for Java executable';
         $this->ioController->writeLine($message, Verbosity::LEVEL_NOTICE);
-        if ($java = $this->fileLocator->locateExecutable('java')) {
-            $message = sprintf('Found java executable at `%s`', $java);
+        if ($executables = $this->fileLocator->locateExecutable('java')) {
+            $java = array_shift($executables);
+            $message = sprintf('Found Java executable at %s', $java);
             $this->ioController->writeLine($message, Verbosity::LEVEL_NOTICE);
             return $java;
         }
-        $this->ioController->writeLine('Couldn\'t find java executable');
+        $message = 'Couldn\'t find Java executable';
+        $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
         return null;
     }
 }

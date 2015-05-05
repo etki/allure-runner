@@ -50,6 +50,8 @@ class TemporaryNodesManager
      *
      * @param Filesystem $filesystem Filesystem helper.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */
@@ -149,6 +151,8 @@ class TemporaryNodesManager
     /**
      * Removes all temporary directories.
      *
+     * @codeCoverageIgnore
+     *
      * @return void
      * @since 0.1.0
      */
@@ -159,6 +163,8 @@ class TemporaryNodesManager
 
     /**
      * Removes all registered temporary files.
+     *
+     * @codeCoverageIgnore
      *
      * @return void
      * @since 0.1.0
@@ -171,12 +177,14 @@ class TemporaryNodesManager
     /**
      * Removes all registered temporary nodes.
      *
+     * @codeCoverageIgnore
+     *
      * @return void
      * @since 0.1.0
      */
     public function removeTemporaryNodes()
     {
-        $this->removeNodes($this->nodes);
+        $this->removeNodes(array_keys($this->nodes));
     }
 
     /**

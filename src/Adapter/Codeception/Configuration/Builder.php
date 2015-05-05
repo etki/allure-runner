@@ -6,7 +6,9 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Codeception\Configuration as CodeceptionConfiguration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\Exception\Configuration\BadConfigurationException;
-use Etki\Testing\AllureFramework\Runner\Utility\Filesystem as FilesystemUtility;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem as FilesystemHelper;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem as FilesystemApi;
+use Etki\Testing\AllureFramework\Runner\Utility\UuidFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -20,8 +22,29 @@ use Symfony\Component\Filesystem\Filesystem;
 class Builder
 {
     /**
+     * Filesystem helper.
+     *
+     * @type FilesystemHelper
+     * @since 0.1.0
+     */
+    private $filesystem;
+
+    /**
+     * Initializer.
+     *
+     * @since 0.1.0
+     */
+    public function __construct()
+    {
+        $this->filesystem = new FilesystemHelper(
+            new FilesystemApi,
+            new Filesystem,
+            new UuidFactory
+        );
+    }
+    /**
      * Builds new runner configuration using codeception extension settings.
-     * 
+     *
      * Glorious war against 80-symbol limit!
      *
      * @param array $extensionConfiguration Extension configuration.
@@ -92,15 +115,12 @@ class Builder
         if (is_string($sources)) {
             $sources = array($sources,);
         }
-        $filesystem = new Filesystem;
-        // todo
-        //$filesystemUtility = new FilesystemUtility;
         foreach ($sources as &$source) {
             $prefix = null;
-            if (!$filesystem->isAbsolutePath($source)) {
+            if (!$this->filesystem->isAbsolutePath($source)) {
                 $prefix = rtrim(CodeceptionConfiguration::outputDir(), '\\/');
             }
-            //$source = $filesystemUtility->normalizePath($source, $prefix);
+            $source = $this->filesystem->normalizePath($source, $prefix);
         }
         return $sources;
     }
@@ -172,11 +192,11 @@ class Builder
      */
     private function calculateOutputDirectory($directory)
     {
-        $filesystem = new Filesystem;
-        if ($filesystem->isAbsolutePath($directory)) {
+        if ($this->filesystem->isAbsolutePath($directory)) {
             return $directory;
         }
         $outputDir = rtrim(CodeceptionConfiguration::outputDir(), '\\/');
-        return $outputDir . DIRECTORY_SEPARATOR . $directory;
+        $fullDirectoryPath = $outputDir . DIRECTORY_SEPARATOR . $directory;
+        return $this->filesystem->normalizePath($fullDirectoryPath);
     }
 }

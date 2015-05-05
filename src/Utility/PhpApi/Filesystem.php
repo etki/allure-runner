@@ -46,11 +46,44 @@ class Filesystem
     /**
      * Returns location of temporary directory.
      *
+     * @codeCoverageIgnore
+     *
      * @return string
      * @since 0.1.0
      */
     public function getTemporaryDirectory()
     {
         return sys_get_temp_dir();
+    }
+
+    /**
+     * Reads file from disk.
+     *
+     * @param string $path Path to file.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return string File contents.
+     * @since 0.1.0
+     */
+    public function readFile($path)
+    {
+        return file_get_contents($path);
+    }
+
+    /**
+     * Writes file to disk.
+     *
+     * @param string $path    File path.
+     * @param string $content File content.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return int Number of bytes written.
+     * @since 0.1.0
+     */
+    public function writeFile($path, $content)
+    {
+        return file_put_contents($path, $content);
     }
 }

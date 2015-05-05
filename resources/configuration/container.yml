@@ -23,6 +23,8 @@ services:
     class: Symfony\Component\Filesystem\Filesystem
   io_controller:
     class: Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController
+  io_controller_configurator:
+    class: Etki\Testing\AllureFramework\Runner\IO\IOControllerConfigurator
   runtime:
     class: Etki\Testing\AllureFramework\Runner\Environment\Runtime
   uuid_factory:
@@ -54,39 +56,47 @@ services:
     class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager
     arguments:
       - @filesystem_helper
+  zip_archive_factory:
+    class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi\ZipArchiveFactory
   zip_extractor:
     class: Etki\Testing\AllureFramework\Runner\Utility\Extractor
     arguments:
       - @filesystem_helper
       - @temporary_filesystem_nodes_manager
+      - @zip_archive_factory
   downloader:
     class: Etki\Testing\AllureFramework\Runner\Utility\Downloader
     arguments:
       - @guzzle
+      - @filesystem_helper
   process_factory:
     class: Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory
-  file_locator_factory:
-    class: Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory
+  file_locator_command_provider_factory:
+    class: Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorCommandProviderFactory
     arguments:
       - @runtime
+  file_locator:
+    class: Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator
+    arguments:
+      - @file_locator_command_provider_factory
       - @process_factory
   java_locator:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JavaExecutableLocator
     arguments:
-      - @file_locator_factory
+      - @file_locator
       - @io_controller
   jar_locator:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarLocator
     arguments:
-      - @file_locator_factory
+      - @file_locator
       - @io_controller
   jar_downloader:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader
     arguments:
       - @downloader
       - @zip_extractor
+      - @temporary_filesystem_nodes_manager
       - @io_controller
-      - @filesystem_helper
   jar_asset_url_resolver:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetUrlResolver
     arguments:
@@ -106,7 +116,7 @@ services:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver
     arguments:
       - %configuration%
-      - @file_locator_factory
+      - @file_locator
       - @java_locator
       - @jar_resolver
       - @io_controller
@@ -138,4 +148,5 @@ services:
       - %configuration%
       - @allure_resolver
       - @runner
+      - @temporary_filesystem_nodes_manager
       - @io_controller

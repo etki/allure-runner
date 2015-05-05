@@ -1,24 +1,22 @@
 <?php
 
-namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory;
+namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\Environment;
 
 use Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockFactory;
 use Symfony\Component\Process\Process;
 use Codeception\TestCase;
-use PHPUnit_Framework_MockObject_MockBuilder as MockBuilder;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 
 /**
  * This class generates ProcessFactory mocks.
- *
- * todo inherit from AbstractMockFactory.
  *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory
  * @author  Etki <etki@etki.name>
  */
-class ProcessFactoryMockFactory
+class ProcessFactoryMockFactory extends AbstractMockFactory
 {
     /**
      * Mocked class FQCN.
@@ -29,24 +27,33 @@ class ProcessFactoryMockFactory
         = '\Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory';
 
     /**
+     * Returns mocked class FQCN.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public function getMockedClass()
+    {
+        return self::MOCKED_CLASS;
+    }
+
+    /**
      * Returns mock object ready for setting up.
      *
-     * @param TestCase $testCase Test case mock is created in.
      * @param Process  $process  Process instance to return on `getProcess()`
      *                           call.
      *
      * @return Mock|ProcessFactory
      * @since 0.1.0
      */
-    public function getMock(TestCase $testCase, Process $process = null)
+    public function getPreparedMock(Process $process = null)
     {
-        $mockBuilder = new MockBuilder($testCase, self::MOCKED_CLASS);
-        $mockBuilder->setMethods(array('getProcess'));
+        $mockBuilder = $this->getPreparedMockBuilder();
         $mockBuilder->disableOriginalConstructor();
         $mock = $mockBuilder->getMock();
         if ($process) {
             $mock
-                ->expects($testCase->any())
+                ->expects($this->getTest()->any())
                 ->method('getProcess')
                 ->willReturnCallback(
                     function ($command) use ($process) {

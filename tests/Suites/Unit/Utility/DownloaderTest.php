@@ -3,13 +3,14 @@
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Utility;
 
 use Etki\Testing\AllureFramework\Runner\Utility\Downloader;
-use Codeception\TestCase\Test;
-use UnitTester;
-use Guzzle\Plugin\Mock\MockPlugin;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
+use Guzzle\Http\Client as Guzzle;
+use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Rhumsaa\Uuid\Uuid;
-use VirtualFileSystem\FileSystem as VFS;
-use VirtualFileSystem\Structure\Node;
+use UnitTester;
+use PHPUnit_Framework_MockObject_MockObject as Mock;
 
 /**
  * This class tests downloader.
@@ -19,7 +20,7 @@ use VirtualFileSystem\Structure\Node;
  * @package Etki\Testing\AllureFramework\Runner\Tests\Unit\Utility
  * @author  Etki <etki@etki.name>
  */
-class DownloaderTest extends Test
+class DownloaderTest extends AbstractClassAwareTest
 {
     /**
      * Tested class FQCN.
@@ -29,11 +30,24 @@ class DownloaderTest extends Test
     const TESTED_CLASS
         = '\Etki\Testing\AllureFramework\Runner\Utility\Downloader';
     /**
-     * Fake url to download file from.
+     * Guzzle client FQCN.
      *
      * @since 0.1.0
      */
-    const TEST_FILE_URL = 'http://test/test.txt';
+    const GUZZLE_CLIENT_CLASS = 'Guzzle\Http\Client';
+    /**
+     * Guzzle request FQIN.
+     *
+     * @since 0.1.0
+     */
+    const GUZZLE_REQUEST_INTERFACE = 'Guzzle\Http\Message\RequestInterface';
+    /**
+     * Filesystem helper FQCN.
+     *
+     * @since 0.1.0
+     */
+    const FILESYSTEM_HELPER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem';
     /**
      * Tester instance.
      *
@@ -41,86 +55,106 @@ class DownloaderTest extends Test
      * @since 0.1.0
      */
     protected $tester;
+
+    // utility methods
+
     /**
-     * VFS instance.
+     * Returns tested class.
      *
-     * @type VFS
+     * @return string
      * @since 0.1.0
      */
-    private $filesystem;
+    public function getTestedClass()
+    {
+        return self::TESTED_CLASS;
+    }
 
     /**
      * Creates test instance.
      *
+     * @param string      $responseBody   Guzzle response body.
+     * @param string|null $writtenContent This variable will be populated by
+     *                                    content passed to be written to file.
+     *
      * @return Downloader
-     * @since 0.1.0
+     * @since 0,1.0
      */
-    private function createTestInstance()
+    protected function createTestInstance($responseBody, &$writtenContent = null)
     {
-        $class = self::TESTED_CLASS;
-        return new $class;
-    }
-
-    // @codingStandardsIgnoreStart
-
-    /**
-     * Before-test hook, creates VFS.
-     *
-     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
-     *
-     * @return void
-     * @since 0.1.0
-     */
-    protected function _before()
-    {
-        $this->filesystem = new VFS;
+        $guzzleMock = $this->createGuzzleMock($responseBody);
+        $filesystemMock = $this->createFilesystemMock($writtenContent);
+        return parent::createTestInstance($guzzleMock, $filesystemMock);
     }
 
     /**
-     * After-test hook, destroys VFS.
+     * Creates Guzzle client mock.
      *
-     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     * @param string $responseBody Response body to return.
      *
-     * @return void
+     * @return Guzzle|Mock
      * @since 0.1.0
      */
-    protected function _after()
+    private function createGuzzleMock($responseBody)
     {
-        $root = $this->filesystem->root();
-        // being double sure everything gets deleted
-        /** @type Node $child */
-        foreach ($root->children() as $child) {
-            $root->remove($child->basename());
-        }
-        unset($this->filesystem);
+        $guzzleResponse = new Response(200, null, $responseBody);
+        /** @type RequestInterface|Mock $guzzleRequestMock */
+        $guzzleRequestMock = $this
+            ->getMockFactory(self::GUZZLE_REQUEST_INTERFACE)
+            ->getConstructorlessMock();
+        $guzzleRequestMock
+            ->expects($this->atLeastOnce())
+            ->method('send')
+            ->willReturn($guzzleResponse);
+        /** @type Guzzle|Mock $guzzleMock */
+        $guzzleMock = $this
+            ->getMockFactory(self::GUZZLE_CLIENT_CLASS)
+            ->getConstructorlessMock();
+        $guzzleMock
+            ->expects($this->atLeastOnce())
+            ->method('get')
+            ->willReturn($guzzleRequestMock);
+        return $guzzleMock;
     }
-    
-    // @codingStandardsIgnoreEnd
 
-    // tests
-    
     /**
-     * Tests downloading.
+     * Creates filesystem mock.
+     *
+     * @param string|null $writtenContent Reference that will absorb content
+     *                                    written to a file.
+     *
+     * @return Filesystem|Mock
+     * @since 0.1.0
+     */
+    protected function createFilesystemMock(&$writtenContent = null)
+    {
+        /** @type Filesystem|Mock $filesystemMock */
+        $filesystemMock = $this
+            ->getMockFactory(self::FILESYSTEM_HELPER_CLASS)
+            ->getConstructorlessMock();
+        $filesystemMock
+            ->expects($this->atLeastOnce())
+            ->method('writeFile')
+            ->willReturnCallback(
+                function ($path, $content) use (&$writtenContent) {
+                    $writtenContent = $content;
+                    return $path; // fooling static analysis tools
+                }
+            );
+        return $filesystemMock;
+    }
+
+    /**
+     * Verifies that download uses other components as expected.
      *
      * @return void
      * @since 0.1.0
      */
     public function testDownload()
     {
-        $instance = $this->createTestInstance();
-        $guzzleMock = new MockPlugin;
-        $instance->addGuzzlePlugin($guzzleMock);
-        
-        $fakeResponse = new Response(200, null, Uuid::uuid4());
-        $guzzleMock->addResponse($fakeResponse);
-        
-        $target = $this->filesystem->path('/' . Uuid::uuid4());
-        
-        $this->assertFalse(file_exists($target));
-        $instance->download(self::TEST_FILE_URL, $target);
-        $this->assertSame(
-            $fakeResponse->getBody(true),
-            file_get_contents($target)
-        );
+        $responseBody = Uuid::uuid4()->__toString();
+        $writtenContent = null;
+        $instance = $this->createTestInstance($responseBody, $writtenContent);
+        $instance->download('http://' . Uuid::uuid4(), Uuid::uuid4());
+        $this->assertSame($responseBody, $writtenContent);
     }
 }

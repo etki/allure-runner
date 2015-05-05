@@ -3,8 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
 /**
@@ -20,7 +19,7 @@ class JarLocator
     /**
      * File locator instance.
      *
-     * @type FileLocatorInterface
+     * @type FileLocator
      * @since 0.1.0
      */
     private $fileLocator;
@@ -35,8 +34,8 @@ class JarLocator
     /**
      * Initializer.
      *
-     * @param FileLocatorFactory    $fileLocatorFactory File locator instance.
-     * @param IOControllerInterface $ioController       I\O controller.
+     * @param FileLocator           $fileLocator  File locator instance.
+     * @param IOControllerInterface $ioController I\O controller.
      *
      * @codeCoverageIgnore
      *
@@ -44,10 +43,10 @@ class JarLocator
      * @since 0.1.0
      */
     public function __construct(
-        FileLocatorFactory $fileLocatorFactory,
+        FileLocator $fileLocator,
         IOControllerInterface $ioController
     ) {
-        $this->fileLocator = $fileLocatorFactory->getFileLocator();
+        $this->fileLocator = $fileLocator;
         $this->ioController = $ioController;
     }
 
@@ -69,6 +68,7 @@ class JarLocator
             $ioc->write($message, Verbosity::LEVEL_DEBUG);
             if ($jar = $this->fileLocator->locateFile($variant)) {
                 $ioc->writeLine('Success.', Verbosity::LEVEL_DEBUG);
+                $jar = array_shift($jar);
                 break;
             } else {
                 $ioc->writeLine('Unsuccessful.', Verbosity::LEVEL_DEBUG);
@@ -77,7 +77,7 @@ class JarLocator
         $message = 'Couldn\'t find Allure `.jar` file';
         if ($jar) {
             $message = sprintf(
-                'Successfully found Allure `.jar` file at `%s`',
+                'Successfully found Allure `.jar` at `%s`',
                 $jar
             );
         }

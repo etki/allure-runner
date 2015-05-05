@@ -12,7 +12,7 @@ use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
  * @package Etki\Testing\AllureFramework\Runner\Environment
  * @author  Etki <etki@etki.name>
  */
-final class Runtime
+class Runtime
 {
     /**
      * MAC os family.
@@ -57,6 +57,8 @@ final class Runtime
      * Initializer.
      *
      * @param PhpApi $phpApi PHP API instance.
+     *
+     * @codeCoverageIgnore
      *
      * @since 0.1.0
      */

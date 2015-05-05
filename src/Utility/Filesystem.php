@@ -11,6 +11,8 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
  * Utility filesystem helper class. Most of the time serves just as a simple
  * wrapper for Symfony Filesystem component and PHP filesystem API.
  *
+ * // todo replace UuidFactory with RandomGeneratorInterface
+ *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Utility
@@ -220,15 +222,15 @@ class Filesystem
     /**
      * Renames `$source` file to `$target`.
      *
-     * @param string $source Source file.
-     * @param string $target Target file.
+     * @param string $source    Source file.
+     * @param string $target    Target file.
+     * @param bool   $overwrite Whether to overwrite existing files or not.
      *
-     * @return void
      * @since 0.1.0
      */
-    public function move($source, $target)
+    public function move($source, $target, $overwrite = true)
     {
-        $this->symfonyFilesystem->rename($source, $target);
+        $this->symfonyFilesystem->rename($source, $target, $overwrite);
     }
 
     /**
@@ -274,5 +276,47 @@ class Filesystem
     public function createFile($path)
     {
         $this->symfonyFilesystem->touch($path);
+    }
+
+    /**
+     * Tells if provided path is absolute.
+     *
+     * @param string $path Path to check.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function isAbsolutePath($path)
+    {
+        return $this->symfonyFilesystem->isAbsolutePath($path);
+    }
+
+    /**
+     * Reads fil contents.
+     *
+     * @param string $path Path to file.
+     *
+     * @return string File contents.
+     * @since 0.1.0
+     */
+    public function readFile($path)
+    {
+        return $this->filesystemApi->readFile($path);
+    }
+
+    /**
+     * Writes file to disk.
+     *
+     * @param string $path    Path to file.
+     * @param string $content New file contents.
+     *
+     * @return int
+     * @since 0.1.0
+     */
+    public function writeFile($path, $content)
+    {
+        return $this->filesystemApi->writeFile($path, $content);
     }
 }

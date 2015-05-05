@@ -20,6 +20,8 @@ class IOControllerConfigurator
      * @param IOControllerInterface $controller    Controller to configure.
      * @param Configuration         $configuration Configuration to use.
      *
+     * @codeCoverageIgnore
+     *
      * @return IOControllerInterface
      * @since 0.1.0
      */

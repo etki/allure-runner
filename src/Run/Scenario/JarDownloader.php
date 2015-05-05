@@ -6,7 +6,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Utility\Downloader;
 use Etki\Testing\AllureFramework\Runner\Utility\Extractor;
-use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
 use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
 
 /**
@@ -41,20 +41,23 @@ class JarDownloader
      */
     private $ioController;
     /**
-     * Filesystem helper.
+     * Temporary filesystem nodes manager.
      *
-     * @type Filesystem
+     * @type TemporaryNodesManager
      * @since 0.1.0
      */
-    private $filesystem;
+    private $temporaryNodesManager;
 
     /**
      * Initializer.
      *
-     * @param Downloader            $downloader   Downloader instance.
-     * @param Extractor             $extractor    Extractor instance.
-     * @param IOControllerInterface $ioController I\O controller.
-     * @param Filesystem            $filesystem   PHP filesystem API instance.
+     * @param Downloader            $downloader            Downloader instance.
+     * @param Extractor             $extractor             Extractor instance.
+     * @param IOControllerInterface $ioController          I\O controller.
+     * @param TemporaryNodesManager $temporaryNodesManager Temporary filesystem
+     *                                                     nodes manager.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
      *
      * @return self
      * @since 0.1.0
@@ -62,13 +65,13 @@ class JarDownloader
     public function __construct(
         Downloader $downloader,
         Extractor $extractor,
-        IOControllerInterface $ioController,
-        Filesystem $filesystem
+        TemporaryNodesManager $temporaryNodesManager,
+        IOControllerInterface $ioController
     ) {
         $this->downloader = $downloader;
         $this->extractor = $extractor;
         $this->ioController = $ioController;
-        $this->filesystem = $filesystem;
+        $this->temporaryNodesManager = $temporaryNodesManager;
     }
 
     /**
@@ -83,10 +86,9 @@ class JarDownloader
      */
     public function downloadJar($url)
     {
-        $temporaryFile = $this->filesystem->createTemporaryFile(
-            $this->filesystem->getTemporaryDirectory(),
-            'allure-cli-zip'
-        );
+        $temporaryFile = $this
+            ->temporaryNodesManager
+            ->createTemporaryFile('allure-cli-zip-');
         $message = sprintf(
             'Downloading Allure CLI zip archive from `%s` to `%s`... ',
             $url,
@@ -95,10 +97,9 @@ class JarDownloader
         $this->ioController->write($message, Verbosity::LEVEL_DEBUG);
         $this->downloader->download($url, $temporaryFile);
         $this->ioController->writeLine('Done.', Verbosity::LEVEL_DEBUG);
-        $target = $this->filesystem->createTemporaryFile(
-            $this->filesystem->getTemporaryDirectory(),
-            'allure-cli-jar'
-        );
+        $target = $this
+            ->temporaryNodesManager
+            ->createTemporaryFile('allure-cli-jar');
         $file = 'lib/allure-cli.jar';
         $message = sprintf('Extracting jar file to `%s`... ', $target);
         $this->ioController->write($message);

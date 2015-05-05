@@ -2,23 +2,22 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Utility;
 
-use Etki\Testing\AllureFramework\Runner\Tests\Support\Data\Loader\ZipArchiveLoader;
-use Etki\Testing\AllureFramework\Runner\Tests\Support\Data\ZipArchiveMetadata;
 use Etki\Testing\AllureFramework\Runner\Utility\Extractor;
-use VirtualFileSystem\FileSystem as VFS;
-use Codeception\Util\Fixtures;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\ZipArchiveFactory;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 
 /**
- * Tests extractor class.
+ * Another formal test.
  *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Tests\Unit\Utility
  * @author  Etki <etki@etki.name>
  */
-class ExtractorTest extends Test
+class ExtractorTest extends AbstractClassAwareTest
 {
     /**
      * Tested class FQCN.
@@ -28,6 +27,33 @@ class ExtractorTest extends Test
     const TESTED_CLASS
         = '\Etki\Testing\AllureFramework\Runner\Utility\Extractor';
     /**
+     * Filesystem helper FQCN.
+     *
+     * @since 0.1.0
+     */
+    const FILESYSTEM_HELPER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem';
+    /**
+     * Temporary filesystem nodes manager FQCN.
+     *
+     * @since 0.1.0
+     */
+    const TEMPORARY_NODES_MANAGER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager';
+    /**
+     * Archive factory class.
+     *
+     * @since 0.1.0
+     */
+    const ZIP_ARCHIVE_FACTORY_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\PhpApi\ZipArchiveFactory';
+    /**
+     * Archive class.
+     *
+     * @since 0.1.0
+     */
+    const ZIP_ARCHIVE_CLASS = 'ZipArchive';
+    /**
      * Tester instance.
      *
      * @type UnitTester
@@ -35,31 +61,116 @@ class ExtractorTest extends Test
      */
     protected $tester;
 
+    // utility methods
+
     /**
-     * Loads archive data.
+     * Returns test subject FQCN.
      *
-     * @param string $name Archive name.
-     *
-     * @return ZipArchiveMetadata
+     * @return string
      * @since 0.1.0
      */
-    private function loadArchive($name)
+    public function getTestedClass()
     {
-        /** @type ZipArchiveLoader $archiveLoader */
-        $archiveLoader = Fixtures::get('service.testing.archive_loader');
-        return $archiveLoader->loadArchive($name);
+        return self::TESTED_CLASS;
     }
 
     /**
      * Returns new extractor.
      *
+     * @param Filesystem            $filesystem            Filesystem helper
+     *                                                     instance.
+     * @param TemporaryNodesManager $temporaryNodesManager Temporary filesystem
+     *                                                     nodes manager.
+     * @param ZipArchiveFactory     $zipArchiveFactory     Zip archive factory.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
      * @return Extractor
      * @since 0.1.0
      */
-    private function createTestInstance()
+    protected function createTestInstance(
+        Filesystem $filesystem = null,
+        TemporaryNodesManager $temporaryNodesManager = null,
+        ZipArchiveFactory $zipArchiveFactory = null
+    ) {
+        if (!$filesystem) {
+            $filesystem = $this
+                ->getMockFactory(self::FILESYSTEM_HELPER_CLASS)
+                ->getConstructorlessMock();
+        }
+        if (!$temporaryNodesManager) {
+            $temporaryNodesManager = $this
+                ->getMockFactory(self::TEMPORARY_NODES_MANAGER_CLASS)
+                ->getConstructorlessMock();
+        }
+        if (!$zipArchiveFactory) {
+            $zipArchiveMock = $this
+                ->getMockFactory(self::ZIP_ARCHIVE_CLASS)
+                ->getConstructorlessMock();
+            $zipArchiveFactory = $this
+                ->getMockFactory(self::ZIP_ARCHIVE_FACTORY_CLASS)
+                ->getConstructorlessMock();
+            $zipArchiveFactory
+                ->expects($this->any())
+                ->method('getZipArchive')
+                ->willReturn($zipArchiveMock);
+        }
+        $instance = parent::createTestInstance(
+            $filesystem,
+            $temporaryNodesManager,
+            $zipArchiveFactory
+        );
+        return $instance;
+    }
+
+    /**
+     * Creates prepared extractor instance.
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return Extractor
+     * @since 0.1.0
+     */
+    private function createPreparedTestInstance()
     {
-        $class = self::TESTED_CLASS;
-        return new $class;
+        $zipArchiveMock = $this
+            ->getMockFactory(self::ZIP_ARCHIVE_CLASS)
+            ->getMock();
+        $zipArchiveMock
+            ->expects($this->atLeastOnce())
+            ->method('extractTo');
+        $zipArchiveFactoryMock = $this
+            ->getMockFactory(self::ZIP_ARCHIVE_FACTORY_CLASS)
+            ->getMock();
+        $zipArchiveFactoryMock
+            ->expects($this->once())
+            ->method('getZipArchive')
+            ->willReturn($zipArchiveMock);
+        $temporaryNodesManagerMock = $this
+            ->getMockFactory(self::TEMPORARY_NODES_MANAGER_CLASS)
+            ->getConstructorlessMock();
+        $temporaryNodesManagerMock
+            ->expects($this->any())
+            ->method('createTemporaryFile')
+            ->willReturnCallback(
+                function () {
+                    return uniqid();
+                }
+            );
+        $temporaryNodesManagerMock
+            ->expects($this->any())
+            ->method('createTemporaryDirectory')
+            ->willReturnCallback(
+                function () {
+                    return uniqid();
+                }
+            );
+        $instance = $this->createTestInstance(
+            null,
+            $temporaryNodesManagerMock,
+            $zipArchiveFactoryMock
+        );
+        return $instance;
     }
 
     // tests
@@ -72,21 +183,7 @@ class ExtractorTest extends Test
      */
     public function testSingleFileExtraction()
     {
-        $instance = $this->createTestInstance();
-        $vfs = new VFS;
-        $archive = 'allure-cli';
-        $target = $vfs->path('allure-cli.jar');
-        $metadata = $this->loadArchive($archive);
-        $this->assertFalse(file_exists($target));
-        $instance->extractFile(
-            $metadata->getPath(),
-            'lib/allure-cli.jar',
-            $target
-        );
-        $this->assertTrue(file_exists($target));
-        $this->assertSame(
-            $metadata->getMd5('lib/allure-cli.jar'),
-            md5(file_get_contents($target))
-        );
+        $instance = $this->createPreparedTestInstance();
+        $instance->extractFile(uniqid(), uniqid(), uniqid());
     }
 }

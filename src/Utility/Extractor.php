@@ -3,7 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Utility;
 
 use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
-use ZipArchive;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\ZipArchiveFactory;
 
 /**
  * Extracts ZIP archives.
@@ -29,6 +29,13 @@ class Extractor
      * @since 0.1.0
      */
     private $filesystem;
+    /**
+     * Factory that produces zip archive objects.
+     *
+     * @type ZipArchiveFactory
+     * @since 0.1.0
+     */
+    private $zipArchiveFactory;
 
     /**
      * Initializer.
@@ -36,6 +43,7 @@ class Extractor
      * @param Filesystem            $filesystem            Filesystem helper.
      * @param TemporaryNodesManager $temporaryNodesManager Temporary file /
      *                                                     directory manager.
+     * @param ZipArchiveFactory     $zipArchiveFactory     ZIP archive factory.
      *
      * @codeCoverageIgnore
      *
@@ -46,10 +54,12 @@ class Extractor
      */
     public function __construct(
         Filesystem $filesystem,
-        TemporaryNodesManager $temporaryNodesManager
+        TemporaryNodesManager $temporaryNodesManager,
+        ZipArchiveFactory $zipArchiveFactory
     ) {
         $this->temporaryNodesManager = $temporaryNodesManager;
         $this->filesystem = $filesystem;
+        $this->zipArchiveFactory = $zipArchiveFactory;
     }
 
     /**
@@ -64,7 +74,7 @@ class Extractor
      */
     public function extractFile($source, $file, $target)
     {
-        $archive = new ZipArchive;
+        $archive = $this->zipArchiveFactory->getZipArchive();
         $temporaryDirectory
             = $this->temporaryNodesManager->createTemporaryDirectory();
         $archive->open($source);

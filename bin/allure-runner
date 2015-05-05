@@ -27,6 +27,7 @@ $configuration = new Configuration;
 $configuration->addSource($projectRoot . '/tests/Output/Data/Allure');
 $configuration->setReportPath($projectRoot . '/tests/Output/Reports/Allure');
 $configuration->setVerbosity(Verbosity::LEVEL_DEBUG);
+$configuration->setDownloadMissingJar(true);
 
 $ioController = new ConsoleIOController(new EchoWriter, Verbosity::LEVEL_DEBUG);
 

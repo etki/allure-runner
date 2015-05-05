@@ -131,6 +131,8 @@ class Configuration
      * This option tells runner to throw exception whenever executable returns
      * return code other than zero.
      *
+     * todo, currently unsupported
+     *
      * @type bool
      * @since 0.1.0
      */
@@ -139,12 +141,16 @@ class Configuration
      * This option tells runner to throw exception if configuration hasn't
      * passed validation.
      *
+     * todo, currently unsupported
+     *
      * @type bool
      * @since 0.1.0
      */
     private $throwOnInvalidConfiguration = false;
     /**
      * Whether to clean generated files or leave them.
+     *
+     * todo, currently unsupported
      *
      * @type bool
      * @since 0.1.0

@@ -3,7 +3,11 @@
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Utility;
 
 use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem
+    as FilesystemApi;
+use Etki\Testing\AllureFramework\Runner\Utility\UuidFactory;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 
 /**
@@ -14,7 +18,7 @@ use UnitTester;
  * @package Utility
  * @author  Etki <etki@etki.name>
  */
-class FilesystemTest extends Test
+class FilesystemTest extends AbstractClassAwareTest
 {
     /**
      * Tested class FQCN.
@@ -24,6 +28,26 @@ class FilesystemTest extends Test
     const TESTED_CLASS
         = '\Etki\Testing\AllureFramework\Runner\Utility\Filesystem';
     /**
+     * Filesystem API FQCN.
+     *
+     * @since 0.1.0
+     */
+    const FILESYSTEM_API_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem';
+    /**
+     *  Symfony filesystem FQCN.
+     *
+     * @since 0.1.0
+     */
+    const SYMFONY_FILESYSTEM_CLASS = 'Symfony\Component\Filesystem\Filesystem';
+    /**
+     * UUID factory FQCN.
+     *
+     * @since 0.1.0
+     */
+    const UUID_FACTORY_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\UuidFactory';
+    /**
      * Tester instance.
      *
      * @type UnitTester
@@ -31,18 +55,55 @@ class FilesystemTest extends Test
      */
     protected $tester;
 
-    // utility
+    // utility methods
+
+    /**
+     * Returns test subject FQCN.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public function getTestedClass()
+    {
+        return self::TESTED_CLASS;
+    }
 
     /**
      * Creates test instance.
      *
+     * @param FilesystemApi     $filesystemApi     PHP filesystem API object.
+     * @param SymfonyFilesystem $symfonyFilesystem Symfony filesystem instance.
+     * @param UuidFactory       $uuidFactory       UUID provider.
+     *
      * @return Filesystem
      * @since 0.1.0
      */
-    private function createTestInstance()
-    {
-        $class = self::TESTED_CLASS;
-        return new $class;
+    protected function createTestInstance(
+        FilesystemApi $filesystemApi = null,
+        SymfonyFilesystem $symfonyFilesystem = null,
+        UuidFactory $uuidFactory = null
+    ) {
+        if (!$filesystemApi) {
+            $filesystemApi = $this
+                ->getMockFactory(self::FILESYSTEM_API_CLASS)
+                ->getDummyMock();
+        }
+        if (!$symfonyFilesystem) {
+            $symfonyFilesystem = $this
+                ->getMockFactory(self::SYMFONY_FILESYSTEM_CLASS)
+                ->getDummyMock();
+        }
+        if (!$uuidFactory) {
+            $uuidFactory = $this
+                ->getMockFactory(self::UUID_FACTORY_CLASS)
+                ->getDummyMock();
+        }
+        $instance = parent::createTestInstance(
+            $filesystemApi,
+            $symfonyFilesystem,
+            $uuidFactory
+        );
+        return $instance;
     }
     
     /**

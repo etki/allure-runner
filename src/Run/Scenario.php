@@ -10,6 +10,7 @@ use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver;
 use Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException;
 
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
 use Exception;
 
 /**
@@ -51,6 +52,15 @@ class Scenario
      * @since 0.1.0
      */
     private $runner;
+    /**
+     * Instance of temporary nodes manager for the cleaner.
+     *
+     * // todo implement cleaner service
+     *
+     * @type TemporaryNodesManager
+     * @since 0.1.0
+     */
+    private $temporaryNodesManager;
 
     /**
      * Initializer.
@@ -61,6 +71,8 @@ class Scenario
      * @param Runner                   $runner         Real runner.
      * @param IOControllerInterface    $ioController   I/O controller.
      *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
      * @return self
      * @since 0.1.0
      */
@@ -68,11 +80,13 @@ class Scenario
         Configuration $configuration,
         AllureExecutableResolver $allureResolver,
         Runner $runner,
+        TemporaryNodesManager $temporaryNodesManager,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
         $this->allureResolver = $allureResolver;
         $this->runner = $runner;
+        $this->temporaryNodesManager = $temporaryNodesManager;
         $this->ioController = $ioController;
     }
 
@@ -113,6 +127,7 @@ class Scenario
             $message = 'Allure CLI has never successfully finished';
             $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
         }
+        $this->cleanUp();
         return $exitCode;
     }
 
@@ -147,5 +162,16 @@ class Scenario
         $options->setReportVersion($this->configuration->getReportVersion());
         $options->setSources($this->configuration->getSources());
         return $options;
+    }
+
+    /**
+     * Cleans up.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    private function cleanUp()
+    {
+        $this->temporaryNodesManager->removeTemporaryNodes();
     }
 }

@@ -6,10 +6,9 @@ use Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Utility\Downloader;
 use Etki\Testing\AllureFramework\Runner\Utility\Extractor;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
 use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
-use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\IOControllerMockFactory;
-use VirtualFileSystem\FileSystem as Vfs;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 
@@ -21,29 +20,36 @@ use PHPUnit_Framework_MockObject_MockObject as Mock;
  * @package Etki\Testing\AllureFramework\Runner\Tests\Unit\Scenario
  * @author  Etki <etki@etki.name>
  */
-class JarDownloaderTest extends Test
+class JarDownloaderTest extends AbstractClassAwareTest
 {
+    /**
+     * Test subject FQCN.
+     *
+     * @since 0.1.0
+     */
+    const TESTED_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader';
     /**
      * FQCN for downloader utility.
      *
      * @since 0.1.0
      */
     const DOWNLOADER_FQCN
-        = '\Etki\Testing\AllureFramework\Runner\Utility\Downloader';
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Downloader';
     /**
      * FQCN for extractor utility.
      *
      * @since 0.1.0
      */
     const EXTRACTOR_FQCN
-        = '\Etki\Testing\AllureFramework\Runner\Utility\Extractor';
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Extractor';
     /**
-     * FQCN for PHP API wrapper.
+     * FQCN for temporary filesystem nodes manager.
      *
      * @since 0.1.0
      */
-    const PHP_API_FQCN
-        = '\Etki\Testing\AllureFramework\Runner\Utility\PhpApi';
+    const TEMPORARY_NODES_MANAGER_FQCN
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager';
     /**
      * Tester instance.
      *
@@ -51,6 +57,19 @@ class JarDownloaderTest extends Test
      * @since 0.1.0
      */
     protected $tester;
+
+    // utility methods
+    
+    /**
+     * Returns test subject FQCN.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public function getTestedClass()
+    {
+        return self::TESTED_CLASS;
+    }
 
     /**
      * Returns IOControllerInterface mock.
@@ -60,8 +79,10 @@ class JarDownloaderTest extends Test
      */
     private function getIoControllerMock()
     {
-        $factory = new IOControllerMockFactory;
-        return $factory->getMock($this);
+        $mock = $this
+            ->getMockFactory(self::IO_CONTROLLER_INTERFACE)
+            ->getDummyMock();
+        return $mock;
     }
 
     /**
@@ -72,7 +93,10 @@ class JarDownloaderTest extends Test
      */
     private function getDownloaderMock()
     {
-        return $this->getMock(self::DOWNLOADER_FQCN, array('download',));
+        $mock = $this
+            ->getMockFactory(self::DOWNLOADER_FQCN)
+            ->getConstructorlessMock();
+        return $mock;
     }
 
     /**
@@ -83,31 +107,76 @@ class JarDownloaderTest extends Test
      */
     private function getExtractorMock()
     {
-        return $this->getMock(self::EXTRACTOR_FQCN, array('extractFile',));
+        $mock = $this
+            ->getMockFactory(self::EXTRACTOR_FQCN)
+            ->getConstructorlessMock();
+        return $mock;
     }
 
     /**
-     * Returns PHP API mock.
+     * Returns Temporary nodes manager mock.
      *
-     * @return PhpApi|Mock
+     * @return TemporaryNodesManager|Mock
      * @since 0.1.0
      */
-    private function getPhpApiMock()
+    private function getTemporaryNodesManagerMock()
     {
-        $mock = $this->getMock(
-            self::PHP_API_FQCN,
-            array('getSystemTemporaryFilesDirectory',)
-        );
-        $vfs = new Vfs;
+        $mock = $this
+            ->getMockFactory(self::TEMPORARY_NODES_MANAGER_FQCN)
+            ->getConstructorlessMock();
         $mock
             ->expects($this->any())
-            ->method('getSystemTemporaryFilesDirectory')
+            ->method('createTemporaryFile')
             ->willReturnCallback(
-                function () use ($vfs) {
-                    return $vfs->path('/tmp');
+                function () {
+                    return uniqid();
+                }
+            );
+        $mock
+            ->expects($this->any())
+            ->method('createTemporaryDirectory')
+            ->willReturnCallback(
+                function () {
+                    return uniqid();
                 }
             );
         return $mock;
+    }
+
+    /**
+     * Creates jar downloader test instance.
+     *
+     * @param Downloader            $downloader            Underlying
+     *                                                     downloader.
+     * @param Extractor             $extractor             Zip file extractor.
+     * @param TemporaryNodesManager $temporaryNodesManager Temporary nodes
+     *                                                     manager.
+     * @param IOControllerInterface $ioController          I/O controller
+     *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @return JarDownloader
+     * @since 0.1.0
+     */
+    protected function createTestInstance(
+        Downloader $downloader = null,
+        Extractor $extractor = null,
+        TemporaryNodesManager $temporaryNodesManager = null,
+        IOControllerInterface $ioController = null
+    ) {
+        $downloader = $downloader ?: $this->getDownloaderMock();
+        $extractor = $extractor ?: $this->getExtractorMock();
+        if (!$temporaryNodesManager) {
+            $temporaryNodesManager = $this->getTemporaryNodesManagerMock();
+        }
+        $ioController = $ioController ?: $this->getIoControllerMock();
+        $instance = parent::createTestInstance(
+            $downloader,
+            $extractor,
+            $temporaryNodesManager,
+            $ioController
+        );
+        return $instance;
     }
 
     // tests
@@ -122,9 +191,9 @@ class JarDownloaderTest extends Test
      */
     public function testJarFileDownload()
     {
-        $phpApi = $this->getPhpApiMock();
-        $downloader = $this->getDownloaderMock();
         $archivePath = null;
+        $usedArchive = null;
+        $downloader = $this->getDownloaderMock();
         $downloader
             ->expects($this->atLeastOnce())
             ->method('download')
@@ -135,7 +204,6 @@ class JarDownloaderTest extends Test
                 }
             );
         $extractor = $this->getExtractorMock();
-        $usedArchive = null;
         $extractor
             ->expects($this->atLeastOnce())
             ->method('extractFile')
@@ -146,14 +214,8 @@ class JarDownloaderTest extends Test
                                                     // foolishment
                 }
             );
-        $ioController = $this->getIoControllerMock();
-        $instance = new JarDownloader(
-            $downloader,
-            $extractor,
-            $ioController,
-            $phpApi
-        );
-        $instance->downloadJar('test');
+        $instance = $this->createTestInstance($downloader, $extractor);
+        $instance->downloadJar('http://' . uniqid());
         $this->assertNotNull($archivePath);
         $this->assertSame($archivePath, $usedArchive);
     }

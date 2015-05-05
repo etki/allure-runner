@@ -6,6 +6,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
+use Etki\Testing\AllureFramework\Runner\IO\IOControllerConfigurator;
 use Etki\Testing\AllureFramework\Runner\Utility\Helper\ConfigurationDumper;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\IO\PrefixAwareIOControllerInterface;
@@ -135,16 +136,9 @@ class Runner
      */
     private function configureIoController($ioController)
     {
-        if ($this->configuration->getVerbosity()) {
-            $verbosity = $this->configuration->getVerbosity();
-            $ioController->setVerbosity($verbosity);
-        }
-        if ($this->configuration->getOutputPrefixFormat()
-            && $ioController instanceof PrefixAwareIOControllerInterface
-        ) {
-            $prefixFormat = $this->configuration->getOutputPrefixFormat();
-            $ioController->setPrefixFormat($prefixFormat);
-        }
+        /** @type IOControllerConfigurator $configurator */
+        $configurator = $this->container->get('io_controller_configurator');
+        $configurator->configure($ioController, $this->configuration);
     }
 
     /**

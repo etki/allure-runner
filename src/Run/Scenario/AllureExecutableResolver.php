@@ -4,8 +4,7 @@ namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorFactory;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocatorInterface;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
 /**
@@ -35,7 +34,7 @@ class AllureExecutableResolver
     /**
      * File locator.
      *
-     * @type FileLocatorInterface
+     * @type FileLocator
      * @since 0.1.0
      */
     private $fileLocator;
@@ -57,26 +56,24 @@ class AllureExecutableResolver
     /**
      * Initializer.
      *
-     * @param Configuration         $configuration      Run configuration.
-     * @param FileLocatorFactory    $fileLocatorFactory File locator for current
-     *                                                  OS.
-     * @param JavaExecutableLocator $javaLocator        Java executable locator.
-     * @param JarResolver           $jarResolver        Allure `.jar` file
-     *                                                  resolver.
-     * @param IOControllerInterface $ioController       I\O controller instance.
+     * @param Configuration         $configuration Run configuration.
+     * @param FileLocator           $fileLocator   File locator for current OS.
+     * @param JavaExecutableLocator $javaLocator   Java executable locator.
+     * @param JarResolver           $jarResolver   Allure `.jar` file resolver.
+     * @param IOControllerInterface $ioController  I\O controller instance.
      *
      * @return self
      * @since 0.1.0
      */
     public function __construct(
         Configuration $configuration,
-        FileLocatorFactory $fileLocatorFactory,
+        FileLocator $fileLocator,
         JavaExecutableLocator $javaLocator,
         JarResolver $jarResolver,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
-        $this->fileLocator = $fileLocatorFactory->getFileLocator();
+        $this->fileLocator = $fileLocator;
         $this->javaLocator = $javaLocator;
         $this->jarResolver = $jarResolver;
         $this->ioController = $ioController;
@@ -166,18 +163,25 @@ class AllureExecutableResolver
      */
     private function getGenericExecutable()
     {
-        $executable = $this->fileLocator->locateExecutable('allure');
-        // this check is quite paranoid (file locator should return executables
-        // only), but i'll leave it in place.
-        if (!$this->testExecutable($executable)) {
+        $executables = $this->fileLocator->locateExecutable('allure');
+        if (!$executables) {
+            $message = 'Couldn\'t locate Allure executable';
+            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
             return null;
         }
-        $message = sprintf(
-            'Found generic Allure executable (`%s`)',
-            $executable
-        );
-        $this->ioController->writeLine($message, Verbosity::LEVEL_INFO);
-        return $executable;
+        foreach ($executables as $executable) {
+            // this check is quite paranoid (file locator should return
+            // executables only), but i'll leave it in place.
+            if ($this->testExecutable($executable)) {
+                $message = sprintf(
+                    'Found generic Allure executable (`%s`)',
+                    $executable
+                );
+                $this->ioController->writeLine($message, Verbosity::LEVEL_INFO);
+                return $executable;
+            }
+        }
+        return null;
     }
 
     /**

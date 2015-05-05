@@ -3,13 +3,9 @@
 namespace Etki\Testing\AllureFramework\Runner\Utility;
 
 use Guzzle\Http\Client;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Downloads stuff.
- *
- * Symfony filesystem isn't used because of atomic renaming support that can't
- * be tested using VFS. There is no need in atomic writes in this project.
  *
  * @version 0.1.0
  * @since   0.1.0
@@ -26,35 +22,31 @@ class Downloader
      */
     private $guzzle;
     /**
+     * Filesystem helper instance.
+     *
+     * @type Filesystem
+     * @since 0.10
+     */
+    private $filesystem;
+    /**
      * Initializer.
      *
-     * @param Client $guzzle Guzzle client.
+     * @param Client     $guzzle     Guzzle client.
+     * @param Filesystem $filesystem Filesystem helper.
      *
      * @since 0.1.0
      */
-    public function __construct(Client $guzzle)
+    public function __construct(Client $guzzle, Filesystem $filesystem)
     {
         $this->guzzle = $guzzle;
-    }
-
-    /**
-     * Adds plugin to guzzle.
-     *
-     * @param EventSubscriberInterface $plugin Plugin to add.
-     *
-     * @return void
-     * @since 0.1.0
-     */
-    public function addGuzzlePlugin(EventSubscriberInterface $plugin)
-    {
-        $this->guzzle->addSubscriber($plugin);
+        $this->filesystem = $filesystem;
     }
 
     /**
      * Downloads single file
      *
-     * @param string $source Source file URL
-     * @param string $target Target file on filesystem.
+     * @param string $source Source file URL.
+     * @param string $target Path to file to write.
      *
      * @return void
      * @since 0.1.0
@@ -63,6 +55,6 @@ class Downloader
     {
         $request = $this->guzzle->get($source);
         $response = $request->send();
-        file_put_contents($target, $response->getBody());
+        $this->filesystem->writeFile($target, $response->getBody(true));
     }
 }

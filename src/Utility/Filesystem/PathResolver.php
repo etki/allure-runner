@@ -32,6 +32,8 @@ class PathResolver
      *
      * @param string $projectRoot Project root.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */
@@ -42,6 +44,8 @@ class PathResolver
 
     /**
      * Retrieves configuration directory.
+     *
+     * @codeCoverageIgnore
      *
      * @return string
      * @since 0.1.0
@@ -58,6 +62,8 @@ class PathResolver
      *
      * @param string $name Name of the file.
      *
+     * @codeCoverageIgnore
+     *
      * @return string
      * @since 0.1.0
      */
@@ -71,7 +77,7 @@ class PathResolver
      *
      * @param string $path Path to normalize.
      *
-     * @todo move to Utility/Filesystem?
+     * @codeCoverageIgnore
      *
      * @return string
      * @since 0.1.0

@@ -22,8 +22,27 @@ use Symfony\Component\DependencyInjection\ContainerBuilder as Container;
  */
 abstract class AbstractTest extends Test
 {
+    /**
+     * I/O controller FQIN.
+     *
+     * @since 0.1.0
+     */
     const IO_CONTROLLER_INTERFACE
         = 'Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface';
+    /**
+     * Namespace factories reside in.
+     *
+     * @since 0.1.0
+     */
+    const FACTORY_BASE_NAMESPACE
+        = 'Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory';
+    /**
+     * Namespace regular components live in.
+     *
+     * @since 0.1.0
+     */
+    const NATIVE_COMPONENT_BASE_NAMESPACE
+        = 'Etki\Testing\AllureFramework\Runner';
     /**
      * Returns mock factory.
      *
@@ -34,11 +53,21 @@ abstract class AbstractTest extends Test
      */
     public function getMockFactory($class)
     {
-        $baseNamespace = 'Etki\Testing\AllureFramework\Runner';
-        $replacement
-            = 'Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory';
-        $factoryClassName = str_replace($baseNamespace, $replacement, $class) .
-            'MockFactory';
+        $baseNativeNamespace = self::NATIVE_COMPONENT_BASE_NAMESPACE;
+        if (strpos($class, $baseNativeNamespace) === 0) {
+            $factoryClassNameBase = str_replace(
+                $baseNativeNamespace,
+                self::FACTORY_BASE_NAMESPACE,
+                $class
+            );
+            $factoryClassName = $factoryClassNameBase . 'MockFactory';
+        } else {
+            $factoryClassName = sprintf(
+                '%s\Vendor\%sMockFactory',
+                self::FACTORY_BASE_NAMESPACE,
+                $class
+            );
+        }
         // todo Yii-compatibility
         if (class_exists($factoryClassName)) {
             /** @type AbstractMockFactory $factory */

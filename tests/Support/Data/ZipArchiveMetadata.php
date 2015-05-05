@@ -47,7 +47,7 @@ class ZipArchiveMetadata
      * @param string $path Path.
      *
      * @return $this Current instance.
-     * @since
+     * @since 0.1.0
      */
     public function setPath($path)
     {
@@ -59,7 +59,7 @@ class ZipArchiveMetadata
      * Returns metadata.
      *
      * @return array
-     * @since
+     * @since 0.1.0
      */
     public function getMetadata()
     {
@@ -72,12 +72,23 @@ class ZipArchiveMetadata
      * @param array $metadata Metadata.
      *
      * @return $this Current instance.
-     * @since
+     * @since 0.1.0
      */
     public function setMetadata($metadata)
     {
         $this->metadata = $metadata;
         return $this;
+    }
+
+    /**
+     * Returns relative paths of included files.
+     *
+     * @return string[]
+     * @since 0.1.0
+     */
+    public function getFileList()
+    {
+        return array_keys($this->metadata);
     }
 
     /**
