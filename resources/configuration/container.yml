@@ -112,6 +112,7 @@ services:
       - @jar_locator
       - @jar_downloader
       - @jar_asset_url_resolver
+      - @filesystem_helper
       - @io_controller
   allure_resolver:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver
