@@ -6,7 +6,7 @@ use Codeception\Util\Debug;
 use DateTime;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
+use Etki\Testing\AllureFramework\Runner\DependencyInjection\ContainerBuilder;
 use Etki\Testing\AllureFramework\Runner\IO\Controller\ConsoleIOController;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Data\Loader\Api\BaseApiResponseLoader;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Debug\DebugWriter;
@@ -16,7 +16,6 @@ use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockF
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\BasicMockFactory;
 use Codeception\Configuration as CodeceptionConfiguration;
 use Codeception\TestCase\Test;
-use ReflectionProperty;
 use Symfony\Component\DependencyInjection\ContainerBuilder as Container;
 
 /**

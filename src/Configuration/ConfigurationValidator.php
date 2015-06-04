@@ -2,7 +2,9 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Configuration;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
+use Etki\Testing\AllureFramework\Runner\Utility\Validation\ValidatorFactory;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -37,16 +39,16 @@ class ConfigurationValidator
     /**
      * Initializer.
      *
-     * @param ValidatorInterface    $validator    Validator to inject.
-     * @param IOControllerInterface $ioController I/O controller.
+     * @param ValidatorFactory      $validatorFactory Validator factory.
+     * @param IOControllerInterface $ioController     I/O controller.
      *
      * @since 0.1.0
      */
     public function __construct(
-        ValidatorInterface $validator,
+        ValidatorFactory $validatorFactory,
         IOControllerInterface $ioController
     ) {
-        $this->validator = $validator;
+        $this->validator = $validatorFactory->getValidator();
         $this->ioController = $ioController;
     }
 
@@ -60,6 +62,9 @@ class ConfigurationValidator
      */
     public function validate(Configuration $configuration)
     {
+        // todo move this somewhere
+        AnnotationRegistry::registerLoader('class_exists');
+        
         $violations = $this->validator->validate($configuration);
         if (!$violations->count()) {
             $message = 'Successfully validated provided configuration';

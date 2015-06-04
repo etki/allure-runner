@@ -6,6 +6,13 @@
 # - @path_resolver (optional) - Etki\Testing\AllureFramework\Runner\Utility\PathResolver - currently isn't used anywhere
 
 parameters:
+  ignored_annotations:
+    - type
+    - expectedException
+    - codeCoverageIgnore
+    - codingStandardsIgnoreFile
+    - codingStandardsIgnoreStart
+    - codingStandardsIgnoreEnd
 services:
   php_api:
     class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi
@@ -38,10 +45,18 @@ services:
       - @github_release_collection_manipulator
   github_release_asset_resolver:
     class: Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver
+  annotation_reader_factory:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Reflection\AnnotationReaderFactory
+    arguments:
+      - %ignored_annotations%
+  validator_factory:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Validation\ValidatorFactory
+    arguments:
+      - @annotation_reader_factory
   configuration_validator:
     class: Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator
     arguments:
-      - @validator
+      - @validator_factory
       - @io_controller
   filesystem_helper:
     class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem

@@ -5,7 +5,7 @@ namespace Etki\Testing\AllureFramework\Runner;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
+use Etki\Testing\AllureFramework\Runner\DependencyInjection\ContainerBuilder;
 use Etki\Testing\AllureFramework\Runner\Exception\AllureCli\NonZeroExitCodeException;
 use Etki\Testing\AllureFramework\Runner\Exception\Configuration\InvalidConfigurationException;
 use Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException;
