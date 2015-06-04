@@ -8,3 +8,6 @@
 !/Reports/Codeception
 /Reports/Codeception/*
 !/Reports/Codeception/.gitkeep
+!/Reports/Coveralls
+/Reports/Coveralls/*
+!/Reports/Coveralls/.gitkeep
