@@ -2,14 +2,21 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Test;
 
+use Codeception\Util\Debug;
+use DateTime;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
+use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\DI\ContainerBuilder;
+use Etki\Testing\AllureFramework\Runner\IO\Controller\ConsoleIOController;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Data\Loader\Api\BaseApiResponseLoader;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Debug\DebugWriter;
 use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockFactory;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\BasicMockFactory;
 use Codeception\Configuration as CodeceptionConfiguration;
 use Codeception\TestCase\Test;
+use ReflectionProperty;
 use Symfony\Component\DependencyInjection\ContainerBuilder as Container;
 
 /**
@@ -43,6 +50,13 @@ abstract class AbstractTest extends Test
      */
     const NATIVE_COMPONENT_BASE_NAMESPACE
         = 'Etki\Testing\AllureFramework\Runner';
+    /**
+     * Namespace API response loaders reside in.
+     *
+     * @since 0.1.0
+     */
+    const API_RESPONSE_LOADER_NAMESPACE
+        = 'Etki\Testing\AllureFramework\Runner\Tests\Support\Data\Loader\Api';
     /**
      * Returns mock factory.
      *
@@ -86,6 +100,7 @@ abstract class AbstractTest extends Test
      * Returns container instance, just as in real run.
      *
      * @param Configuration         $configuration Runner configuration.
+     * @param object[]              $services      Additional services.
      * @param IOControllerInterface $ioController  I/O controller.
      *
      * @return Container Container instance.
@@ -93,6 +108,7 @@ abstract class AbstractTest extends Test
      */
     public function createContainer(
         Configuration $configuration = null,
+        array $services = array(),
         $ioController = null
     ) {
         $builder = new ContainerBuilder;
@@ -100,10 +116,54 @@ abstract class AbstractTest extends Test
             = new PathResolver(CodeceptionConfiguration::projectDir());
         $configuration = $configuration ?: new Configuration;
         if (!$ioController) {
-            $ioController = $this
-                ->getMockFactory(self::IO_CONTROLLER_INTERFACE)
-                ->getDummyMock();
+            $verbosityLevel = Verbosity::LEVEL_DEBUG;
+            $writer = new DebugWriter;
+            $ioController = new ConsoleIOController($writer, $verbosityLevel);
         }
-        return $builder->build($pathResolver, $configuration, $ioController);
+        $services['path_resolver'] = $pathResolver;
+        $services['io_controller'] = $ioController;
+        $fileName = Configuration::CONTAINER_CONFIGURATION_FILE_NAME;
+        $configurationPath = $pathResolver->getConfigurationFile($fileName);
+        $container = $builder->build(
+            array($configurationPath,),
+            $services,
+            array('configuration' => $configuration,)
+        );
+        return $container;
+    }
+
+    /**
+     * Retrieves particular API response loader.
+     *
+     * @param string $api Api name.
+     *
+     * @return BaseApiResponseLoader
+     * @since 0.1.0
+     */
+    public function getResponseLoader($api)
+    {
+        $api = ucfirst($api);
+        $baseDirectory = CodeceptionConfiguration::dataDir() . '/Samples/Api/' .
+            $api;
+        $expectedClass = self::API_RESPONSE_LOADER_NAMESPACE . '\\' . $api;
+        if (class_exists($expectedClass)) {
+            return new $expectedClass($baseDirectory);
+        }
+        return new BaseApiResponseLoader($baseDirectory);
+    }
+
+    /**
+     * Outputs a debug message.
+     *
+     * @param string $message Message to output.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    protected function debug($message)
+    {
+        $timestamp = DateTime::createFromFormat('U.u', microtime(true));
+        
+        Debug::debug($timestamp->format('Y-m-d\TH:i:s.u') . ' ' . $message);
     }
 }

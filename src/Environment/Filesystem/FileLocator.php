@@ -13,7 +13,7 @@ use Etki\Testing\AllureFramework\Runner\Exception\RuntimeException;
  * ---
  *
  * Yet another stupid class with gigantic names.
- * 
+ *
  * todo introduce new CommandTemplatesNotProvided exception?
  *
  * @version 0.1.0
@@ -26,14 +26,14 @@ class FileLocator
     /**
      * Instance of executable location command templates provider.
      *
-     * @type ExecutableLocationCommandsProviderInterface
+     * @type ExecutableLocationCommandProviderInterface
      * @since 0.1.0
      */
     private $executableLocationCommandTemplateProvider;
     /**
      * Instance of file location command templates provider.
      *
-     * @type FileLocationCommandsProviderInterface
+     * @type FileLocationCommandProviderInterface
      * @since 0.1.0
      */
     private $fileLocationCommandTemplateProvider;
@@ -53,6 +53,8 @@ class FileLocator
      * @param ProcessFactory         $processFactory         Process factory.
      *
      * @SuppressWarnings(PHPMD.LongVariableName)
+     *
+     * @codeCoverageIgnore
      *
      * @return self
      * @since 0.1.0
@@ -125,10 +127,6 @@ class FileLocator
      */
     private function locate($name, array $commandTemplates)
     {
-        if (!$commandTemplates) {
-            $message = 'No commands provided for this operation on this OS';
-            throw new RuntimeException($message);
-        }
         foreach ($commandTemplates as $commandTemplate) {
             $command = sprintf($commandTemplate, $name);
             if ($result = $this->tryLocate($command)) {

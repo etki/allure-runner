@@ -22,6 +22,8 @@ class AllureExecutableNotFoundException extends RuntimeException
      * @param int       $code     Exception code.
      * @param Exception $previous Previous exception.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */

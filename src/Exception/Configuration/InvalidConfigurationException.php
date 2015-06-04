@@ -12,6 +12,16 @@ use Etki\Testing\AllureFramework\Runner\Exception\LogicException;
  * @package Etki\Testing\AllureFramework\Runner\Exception\Configuration
  * @author  Etki <etki@etki.name>
  */
-class BadConfigurationException extends LogicException
+class InvalidConfigurationException extends LogicException
 {
+    /**
+     * Default exception message.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public static function getDefaultMessage()
+    {
+        return 'Provided configuration has failed validation';
+    }
 }

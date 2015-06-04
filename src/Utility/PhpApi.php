@@ -63,4 +63,17 @@ class PhpApi
     {
         return php_uname($mode);
     }
+
+    /**
+     * Returns current time in seconds.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return float
+     * @since 0.1.0
+     */
+    public function getTime()
+    {
+        return microtime(true);
+    }
 }

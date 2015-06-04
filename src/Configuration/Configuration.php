@@ -501,7 +501,7 @@ class Configuration
      * @return bool
      * @since 0.1.0
      */
-    public function shouldThrowOnNonZeroResult()
+    public function shouldThrowOnNonZeroExitCode()
     {
         return $this->throwOnNonZeroResult;
     }

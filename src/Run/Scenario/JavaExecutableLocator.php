@@ -60,7 +60,7 @@ class JavaExecutableLocator
         $this->ioController->writeLine($message, Verbosity::LEVEL_NOTICE);
         if ($executables = $this->fileLocator->locateExecutable('java')) {
             $java = array_shift($executables);
-            $message = sprintf('Found Java executable at %s', $java);
+            $message = sprintf('Found Java executable at `%s`', $java);
             $this->ioController->writeLine($message, Verbosity::LEVEL_NOTICE);
             return $java;
         }

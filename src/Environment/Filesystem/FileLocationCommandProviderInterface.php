@@ -11,7 +11,7 @@ namespace Etki\Testing\AllureFramework\Runner\Environment\Filesystem;
  * @package Etki\Testing\AllureFramework\Runner\Environment\Filesystem
  * @author  Etki <etki@etki.name>
  */
-interface FileLocationCommandsProviderInterface
+interface FileLocationCommandProviderInterface
 {
     /**
      * Returns list of sprintf-ready regular file location command templates.

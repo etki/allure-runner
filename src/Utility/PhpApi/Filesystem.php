@@ -38,7 +38,7 @@ class Filesystem
      * @return string Path to file.
      * @since 0.1.0
      */
-    public function generateTemporaryFile($directory, $prefix)
+    public function createTemporaryFile($directory, $prefix)
     {
         return tempnam($directory, $prefix);
     }

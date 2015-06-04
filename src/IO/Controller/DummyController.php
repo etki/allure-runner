@@ -48,6 +48,22 @@ class DummyController implements IOControllerInterface
     }
 
     /**
+     * Dummy implementation.
+     *
+     * @param string[] $messages  Messages to output (that won't happen).
+     * @param string   $verbosity Messages verbosity level (who cares).
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function writeLines(
+        array $messages,
+        $verbosity = Verbosity::LEVEL_INFO
+    ) {
+        // pass
+    }
+
+    /**
      * Dummy implementation
      *
      * @param int $verbosity Verbosity level.

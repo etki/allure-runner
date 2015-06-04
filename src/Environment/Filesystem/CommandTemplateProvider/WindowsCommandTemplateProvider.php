@@ -2,8 +2,8 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Environment\Filesystem\CommandTemplateProvider;
 
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\ExecutableLocationCommandsProviderInterface;
-use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocationCommandsProviderInterface;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\ExecutableLocationCommandProviderInterface;
+use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocationCommandProviderInterface;
 
 /**
  * Provides command templates for Windows OS.
@@ -14,8 +14,8 @@ use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocationComma
  * @author  Etki <etki@etki.name>
  */
 class WindowsCommandTemplateProvider implements
-    ExecutableLocationCommandsProviderInterface,
-    FileLocationCommandsProviderInterface
+    ExecutableLocationCommandProviderInterface,
+    FileLocationCommandProviderInterface
 {
     /**
      * Template for executable search command.
@@ -27,6 +27,8 @@ class WindowsCommandTemplateProvider implements
     /**
      * {@inheritdoc}
      *
+     * @codeCoverageIgnore
+     *
      * @return string[]
      * @since 0.1.0
      */
@@ -37,6 +39,8 @@ class WindowsCommandTemplateProvider implements
 
     /**
      * {@inheritdoc}
+     *
+     * @codeCoverageIgnore
      *
      * @return string[]
      * @since 0.1.0

@@ -2,7 +2,7 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 
-use Etki\Testing\AllureFramework\Runner\Api\Github\LatestReleaseResolver;
+use Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseResolver;
 use Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
@@ -36,7 +36,7 @@ class JarAssetUrlResolver
     /**
      * Github release resolver.
      *
-     * @type LatestReleaseResolver
+     * @type ReleaseResolver
      * @since 0.1.0
      */
     private $releaseResolver;
@@ -53,8 +53,9 @@ class JarAssetUrlResolver
      *
      * @param Configuration         $configuration   Allure runner
      *                                               configuration.
-     * @param ReleaseAssetResolver  $assetResolver   Github asset resolver.
-     * @param LatestReleaseResolver $releaseResolver Github release resolver.
+     * @param ReleaseResolver       $releaseResolver Github release resolver.
+     * @param ReleaseAssetResolver  $assetResolver   Github release asset
+     *                                               resolver.
      * @param IOControllerInterface $ioController    I/O controller.
      *
      * @return self
@@ -62,8 +63,8 @@ class JarAssetUrlResolver
      */
     public function __construct(
         Configuration $configuration,
+        ReleaseResolver $releaseResolver,
         ReleaseAssetResolver $assetResolver,
-        LatestReleaseResolver $releaseResolver,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
@@ -80,42 +81,81 @@ class JarAssetUrlResolver
      */
     public function resolveUrl()
     {
-        $release = $this->configuration->getPreferredAllureVersion();
+        $url = null;
+        if ($tag = $this->configuration->getPreferredAllureVersion()) {
+            $url = $this->getUrlByReleaseTag($tag);
+        }
+        if (!$url) {
+            $url = $this->getUrlFromLatestRelease();
+        }
+        if (!$url) {
+            $message = 'Failed to resolve Allure download url';
+            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
+        }
+        return $url;
+    }
+
+    /**
+     * Fetches url by tag name.
+     *
+     * @param string $tag Tag to fetch asset for.
+     *
+     * @return string|null Asset url or null in case anything goes wrong.
+     * @since 0.1.0
+     */
+    private function getUrlByReleaseTag($tag)
+    {
+        $message = sprintf('Getting asset url for release tagged `%s`', $tag);
+        $this->ioController->writeLine($message, Verbosity::LEVEL_DEBUG);
+        $release = $this->releaseResolver->getSpecificRelease(
+            Configuration::GITHUB_REPOSITORY_OWNER,
+            Configuration::GITHUB_REPOSITORY_NAME,
+            $tag
+        );
         if (!$release) {
-            $release = $this->releaseResolver->getLatestRelease(
-                Configuration::GITHUB_REPOSITORY_OWNER,
-                Configuration::GITHUB_REPOSITORY_NAME
-            );
+            $message = sprintf('Failed to fetch release `%s`', $tag);
+            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
+            return null;
         }
+        $url = $this->assetResolver->getFirstZipAssetUrl($release);
+        if ($url) {
+            $message = sprintf(
+                'Successfully resolved asset url for release `%s` (%s)',
+                $tag,
+                $url
+            );
+            $this->ioController->writeLine($message, Verbosity::LEVEL_INFO);
+        }
+        return $url;
+    }
+
+    /**
+     * Retrieves download url from latest available release.
+     *
+     * @return string|null Download url or null in case anything went wrong.
+     * @since 0.1.0
+     */
+    private function getUrlFromLatestRelease()
+    {
+        $message = sprintf('Getting asset url for latest release');
+        $this->ioController->writeLine($message, Verbosity::LEVEL_DEBUG);
+        $release = $this->releaseResolver->getLatestRelease(
+            Configuration::GITHUB_REPOSITORY_OWNER,
+            Configuration::GITHUB_REPOSITORY_NAME
+        );
         if (!$release) {
-            $message = 'Couldn\'t find corresponding release to fetch Allure ' .
-                '`.jar` file from';
+            $message = sprintf('Failed to fetch latest release');
             $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
             return null;
         }
-        try {
-            $assets = $this->assetResolver->getAssets(
-                Configuration::GITHUB_REPOSITORY_OWNER,
-                Configuration::GITHUB_REPOSITORY_NAME,
-                $release
-            );
-        } catch (ReleaseNotFoundException $e) {
+        $url = $this->assetResolver->getFirstZipAssetUrl($release);
+        if ($url) {
             $message = sprintf(
-                'Github reported that release `%s` doesn\'t exist',
-                $release
+                'Successfully resolved asset url for latest release (%s)',
+                $url
             );
-            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
-            return null;
+            $this->ioController->writeLine($message, Verbosity::LEVEL_INFO);
         }
-        if (!$assets) {
-            $message = sprintf(
-                'Github release `%s` doesn\'t contain any assets',
-                $release
-            );
-            $this->ioController->writeLine($message, Verbosity::LEVEL_WARNING);
-            return null;
-        }
-        $firstAsset = reset($assets);
-        return $firstAsset['browser_download_url'];
+        return $url;
     }
 }

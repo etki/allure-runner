@@ -16,72 +16,23 @@ use Github\Client;
 class ReleaseAssetResolver
 {
     /**
-     * API client instance.
+     * Retrieves URL of first zip asset.
      *
-     * @type Client
+     * @param array $release Release definition as provided by API.
+     *
+     * @return string|null Asset URL or null.
      * @since 0.1.0
      */
-    private $api;
-
-    /**
-     * Initializer.
-     *
-     * @param Client $githubApi Github API client instance.
-     *
-     * @since 0.1.0
-     */
-    public function __construct(Client $githubApi)
+    public function getFirstZipAssetUrl($release)
     {
-        $this->api = $githubApi;
-    }
-
-    /**
-     * Retrieves assets for specified release.
-     *
-     * @param string $owner      Github repository owner.
-     * @param string $repository Github repository name.
-     * @param string $tag        Release name / version.
-     *
-     * @return array List of assets.
-     * @since 0.1.0
-     */
-    public function getAssets($owner, $repository, $tag)
-    {
-        $release = $this->getRelease($owner, $repository, $tag);
-        if (isset($release['assets'])) {
-            return $release['assets'];
-        }
-        return array();
-    }
-
-    /**
-     * Fetches specific release. If it doesn't exist, throws an exception.
-     *
-     * @param string $owner      Repository owner.
-     * @param string $repository Repository name.
-     * @param string $tag        Tag representing release.
-     *
-     * @throws ReleaseNotFoundException
-     *
-     * @return array Release data.
-     * @since 0.1.0
-     */
-    private function getRelease($owner, $repository, $tag)
-    {
-        $releaseApi = $this->api->repos()->releases();
-        $releases = $releaseApi->all($owner, $repository);
-        foreach ($releases as $release) {
-            if ($release['tag_name'] === $tag || $release['name'] === $tag) {
-                return $release;
-            }
-        }
-        foreach ($releases as $release) {
-            if (strpos($release['tag_name'], $tag) !== false
-                || strpos($release['name'], $tag !== false)
+        $assets = !empty($release['assets']) ? $release['assets'] : array();
+        foreach ($assets as $asset) {
+            if ($asset['content_type'] === 'application/zip'
+                && !empty($asset['browser_download_url'])
             ) {
-                return $release;
+                return $asset['browser_download_url'];
             }
         }
-        throw new ReleaseNotFoundException($tag);
+        return null;
     }
 }

@@ -7,8 +7,10 @@ use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem
     as FilesystemApi;
 use Etki\Testing\AllureFramework\Runner\Utility\UuidFactory;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
+use PHPUnit_Framework_MockObject_MockObject as Mock;
 
 /**
  * Tests filesystem utility class.
@@ -48,6 +50,13 @@ class FilesystemTest extends AbstractClassAwareTest
     const UUID_FACTORY_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Utility\UuidFactory';
     /**
+     * Symfony's Filesystem I/O exception class.
+     *
+     * @since 0.1.0
+     */
+    const IO_EXCEPTION_CLASS
+        = 'Symfony\Component\Filesystem\Exception\IOException';
+    /**
      * Tester instance.
      *
      * @type UnitTester
@@ -83,20 +92,14 @@ class FilesystemTest extends AbstractClassAwareTest
         SymfonyFilesystem $symfonyFilesystem = null,
         UuidFactory $uuidFactory = null
     ) {
-        if (!$filesystemApi) {
-            $filesystemApi = $this
-                ->getMockFactory(self::FILESYSTEM_API_CLASS)
-                ->getDummyMock();
-        }
+        $filesystemApi = $filesystemApi ?: $this->createFilesystemApiMock();
         if (!$symfonyFilesystem) {
-            $symfonyFilesystem = $this
-                ->getMockFactory(self::SYMFONY_FILESYSTEM_CLASS)
-                ->getDummyMock();
+            $symfonyFilesystem = $this->createSymfonyFilesystemMock();
         }
         if (!$uuidFactory) {
             $uuidFactory = $this
                 ->getMockFactory(self::UUID_FACTORY_CLASS)
-                ->getDummyMock();
+                ->getMock();
         }
         $instance = parent::createTestInstance(
             $filesystemApi,
@@ -105,6 +108,36 @@ class FilesystemTest extends AbstractClassAwareTest
         );
         return $instance;
     }
+
+    /**
+     * Creates Filesystem API mock.
+     *
+     * @return FilesystemApi|Mock
+     * @since 0.1.0
+     */
+    private function createFilesystemApiMock()
+    {
+        $filesystemApi = $this
+            ->getMockFactory(self::FILESYSTEM_API_CLASS)
+            ->getMock();
+        return $filesystemApi;
+    }
+
+    /**
+     * Creates Symfony Filesystem component mock.
+     *
+     * @return SymfonyFilesystem|Mock
+     * @since 0.1.0
+     */
+    private function createSymfonyFilesystemMock()
+    {
+        $symfonyFilesystem = $this
+            ->getMockFactory(self::SYMFONY_FILESYSTEM_CLASS)
+            ->getMock();
+        return $symfonyFilesystem;
+    }
+    
+    // data providers
     
     /**
      * Provides paths for normalization.
@@ -148,5 +181,86 @@ class FilesystemTest extends AbstractClassAwareTest
             $expectedResult,
             $filesystem->normalizePath($rawPath, $currentDirectory)
         );
+    }
+
+    /**
+     * Tests temporary file creation.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function testTemporaryFileCreation()
+    {
+        $filesystemApi = $this->createFilesystemApiMock();
+        $filesystemApi
+            ->expects($this->atLeastOnce())
+            ->method('createTemporaryFile')
+            ->willReturnCallback(
+                function ($directory, $prefix) {
+                    $path = $directory . DIRECTORY_SEPARATOR . uniqid($prefix);
+                    return $path;
+                }
+            );
+        $instance = $this->createTestInstance($filesystemApi);
+        $instance->createTemporaryFile('test', 'test');
+    }
+
+
+    /**
+     * Tests temporary directory creation.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function testTemporaryDirectoryCreation()
+    {
+        $this->createTestInstance()->createTemporaryDirectory();
+    }
+    
+    // @codingStandardsIgnoreStart
+    
+    /**
+     * Verifies that filesystem behaves on temporary file creation failure just
+     * as expected.
+     *
+     * @expectedException \Etki\Testing\AllureFramework\Runner\Exception\Utility\Filesystem\TemporaryNodeCreationException
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function testTemporaryFileCreationFailure()
+    {
+        // @codingStandardsIgnoreEnd
+        $filesystemApi = $this->createFilesystemApiMock();
+        $filesystemApi
+            ->expects($this->any())
+            ->method('createTemporaryFile')
+            ->willReturn(false);
+        $this->createTestInstance($filesystemApi)->createTemporaryFile();
+    }
+
+    // @codingStandardsIgnoreStart
+    
+    /**
+     * Verifies that filesystem behaves on temporary file creation failure just
+     * as expected.
+     *
+     * @expectedException \Etki\Testing\AllureFramework\Runner\Exception\Utility\Filesystem\TemporaryNodeCreationException
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function testTemporaryDirectoryCreationFailure()
+    {
+        // @codingStandardsIgnoreEnd
+        $exceptionClass = self::IO_EXCEPTION_CLASS;
+        $filesystem = $this->createSymfonyFilesystemMock();
+        $filesystem
+            ->expects($this->any())
+            ->method('mkdir')
+            ->willThrowException(new $exceptionClass(''));
+        $this
+            ->createTestInstance(null, $filesystem)
+            ->createTemporaryDirectory();
     }
 }

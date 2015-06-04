@@ -3,6 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\AllureCli;
 
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
 use Symfony\Component\Process\Process;
 
 /**
@@ -30,23 +31,48 @@ class Run
      */
     private $process;
     /**
+     * PHP API instance.
+     *
+     * @type PhpApi
+     * @since 0.1.0
+     */
+    private $phpApi;
+    /**
      * Combines output.
      *
      * @type string
      * @since 0.1.0
      */
     private $output;
-
+    /**
+     * Start time.
+     *
+     * @type float
+     * @since 0.1.0
+     */
+    private $startTime;
+    /**
+     * End time.
+     *
+     * @type float
+     * @since 0.1.0
+     */
+    private $endTime;
+    /**
+     * Process exit code.
+     *
+     * @type int
+     * @since 0.1.0
+     */
+    private $exitCode;
 
     /**
-     * Initializer
+     * Initializer.
      *
      * @param Process               $process      Process to run.
      * @param OutputBridge          $outputBridge Bridge that feeds Allure
      *                                            output into I/O controller.
-     * @param ResultOutputParser    $outputParser Output parser instance that
-     *                                            helps in detecting operation
-     *                                            success.
+     * @param PhpApi                $phpApi       PHP API instance.
      *
      * @codeCoverageIgnore
      *
@@ -56,11 +82,11 @@ class Run
     public function __construct(
         Process $process,
         OutputBridge $outputBridge,
-        ResultOutputParser $outputParser
+        PhpApi $phpApi
     ) {
         $this->process = $process;
         $this->outputBridge = $outputBridge;
-        $this->outputParser = $outputParser;
+        $this->phpApi = $phpApi;
     }
 
     /**
@@ -71,16 +97,11 @@ class Run
      */
     public function run()
     {
+        $this->startTime = $this->phpApi->getTime();
         $this->process->run($this->outputBridge);
+        $this->endTime = $this->phpApi->getTime();
         $this->output = trim($this->outputBridge->getOutput());
-        if ($this->process->getExitCode() !== 0) {
-            return $this->process->getExitCode();
-        }
-        // added because Allure always returned exit code 0 up to v2.4
-        if ($this->outputParser->isSuccessfulRun($this->output) === false) {
-            return Configuration::GENERIC_ERROR_EXIT_CODE;
-        }
-        return 0;
+        $this->exitCode = $this->process->getExitCode();
     }
 
     /**
@@ -94,5 +115,49 @@ class Run
     public function getOutput()
     {
         return $this->output;
+    }
+
+    /**
+     * Returns start time.
+     *
+     * @return float
+     * @since 0.1.0
+     */
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+    /**
+     * Returns end time.
+     *
+     * @return float
+     * @since 0.1.0
+     */
+    public function getEndTime()
+    {
+        return $this->endTime;
+    }
+
+    /**
+     * Returns running time.
+     *
+     * @return float
+     * @since 0.1.0
+     */
+    public function getRunningTime()
+    {
+        return $this->endTime - $this->startTime;
+    }
+
+    /**
+     * Returns process exit code.
+     *
+     * @return int
+     * @since 0.1.0
+     */
+    public function getExitCode()
+    {
+        return $this->exitCode;
     }
 }

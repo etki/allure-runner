@@ -3,6 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\AllureCli;
 
 use Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory;
+use Etki\Testing\AllureFramework\Runner\Utility\PhpApi;
 
 /**
  * Produces Allure Run objects responsible for real Allure runs.
@@ -22,19 +23,19 @@ class RunFactory
      */
     private $processFactory;
     /**
-     * Parser for Allure output that detects run success.
-     *
-     * @type ResultOutputParser
-     * @since 0.1.0
-     */
-    private $outputParser;
-    /**
      * Factory for producing STDOUT bridges from Allure to I/O controller.
      *
      * @type OutputFormatter
      * @since 0.1.0
      */
     private $outputBridgeFactory;
+    /**
+     * PHP API instance.
+     *
+     * @type PhpApi
+     * @since 0.1.0
+     */
+    private $phpApi;
 
     /**
      * Initializer.
@@ -42,6 +43,7 @@ class RunFactory
      * @param ProcessFactory      $processFactory Process factory.
      * @param OutputBridgeFactory $bridgeFactory  Output bridge generator.
      * @param ResultOutputParser  $outputParser   Allure output parser.
+     * @param PhpApi              $phpApi         PHP API instance.
      *
      * @codeCoverageIgnore
      *
@@ -51,11 +53,11 @@ class RunFactory
     public function __construct(
         ProcessFactory $processFactory,
         OutputBridgeFactory $bridgeFactory,
-        ResultOutputParser $outputParser
+        PhpApi $phpApi
     ) {
         $this->processFactory = $processFactory;
         $this->outputBridgeFactory = $bridgeFactory;
-        $this->outputParser = $outputParser;
+        $this->phpApi = $phpApi;
     }
 
     /**
@@ -74,7 +76,7 @@ class RunFactory
         $run = new Run(
             $process,
             $this->outputBridgeFactory->getBridge(),
-            $this->outputParser
+            $this->phpApi
         );
         return $run;
     }

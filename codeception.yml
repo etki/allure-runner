@@ -20,7 +20,7 @@ extensions:
   config:
     Yandex\Allure\Adapter\AllureAdapter:
       deletePreviousResults: true
-      outputDirectory: ../Data/Allure
+      outputDirectory: ../../Data/Allure
     Etki\Shortcut\AllureRunner\Codeception:
       enabled: false
       verbosity: debug

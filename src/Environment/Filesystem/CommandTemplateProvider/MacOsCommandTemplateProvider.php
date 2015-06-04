@@ -22,6 +22,8 @@ class MacOsCommandTemplateProvider extends UnixCommandTemplateProvider
     /**
      * {@inheritdoc}
      *
+     * @codeCoverageIgnore
+     *
      * @return string[]
      * @since 0.1.0
      */

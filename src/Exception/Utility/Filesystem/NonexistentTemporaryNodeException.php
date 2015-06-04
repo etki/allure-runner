@@ -23,6 +23,8 @@ class NonexistentTemporaryNodeException extends BadMethodCallException
      * @param int       $code     Exception code.
      * @param Exception $previous Previous exception.
      *
+     * @codeCoverageIgnore
+     *
      * @since 0.1.0
      */
     public function __construct(

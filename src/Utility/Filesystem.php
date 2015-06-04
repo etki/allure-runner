@@ -5,13 +5,14 @@ namespace Etki\Testing\AllureFramework\Runner\Utility;
 use Etki\Testing\AllureFramework\Runner\Exception\Utility\Filesystem\TemporaryNodeCreationException;
 use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem
     as FilesystemApi;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * Utility filesystem helper class. Most of the time serves just as a simple
  * wrapper for Symfony Filesystem component and PHP filesystem API.
  *
- * // todo replace UuidFactory with RandomGeneratorInterface
+ * todo replace UuidFactory with RandomGeneratorInterface
  *
  * @version 0.1.0
  * @since   0.1.0
@@ -26,7 +27,7 @@ class Filesystem
      *
      * @since 0.1.0
      */
-    const MAXIMUM_DIRECTORY_CREATION_ATTEMPTS = 5;
+    const MAXIMUM_NODE_CREATION_ATTEMPTS = 5;
     /**
      * Filesystem API.
      *
@@ -157,15 +158,20 @@ class Filesystem
     public function createTemporaryFile($directory = null, $prefix = '')
     {
         $directory = $directory ?: $this->getTemporaryDirectory();
-        $limit = self::MAXIMUM_DIRECTORY_CREATION_ATTEMPTS;
+        $limit = self::MAXIMUM_NODE_CREATION_ATTEMPTS;
         // Of course i'm paranoid enough to believe there will be a collision!
         // Some things are hard to overwhelm.
         for ($attempts = 0; $attempts < $limit; $attempts++) {
-            $path = $this->filesystemApi->generateTemporaryFile(
-                $directory,
-                $prefix
-            );
-            if ($path) {
+            // sadly, this chunk calls for tempnam that doesn't support VFS.
+            //$path = $this->filesystemApi->createTemporaryFile(
+            //    $directory,
+            //    $prefix
+            //);
+            $uuid = $this->uuidFactory->uuid4();
+            $path = $directory . DIRECTORY_SEPARATOR . $prefix . $uuid;
+            // todo not atomic
+            if (!$this->symfonyFilesystem->exists($path)) {
+                $this->symfonyFilesystem->touch($path);
                 return $path;
             }
         }
@@ -186,15 +192,19 @@ class Filesystem
      */
     public function createTemporaryDirectory($prefix = '')
     {
-        $limit = self::MAXIMUM_DIRECTORY_CREATION_ATTEMPTS;
         $temporaryDirectory = $this->getTemporaryDirectory();
+        $limit = self::MAXIMUM_NODE_CREATION_ATTEMPTS;
         for ($attempts = 0; $attempts < $limit; $attempts++) {
             $uuid = $this->uuidFactory->uuid4();
             $path = $temporaryDirectory . DIRECTORY_SEPARATOR . $prefix . $uuid;
             // todo not atomic
             if (!$this->exists($path)) {
-                $this->symfonyFilesystem->mkdir($path);
-                return $path;
+                try {
+                    $this->symfonyFilesystem->mkdir($path);
+                    return $path;
+                } catch (IOException $e) {
+                    // noop
+                }
             }
         }
         $message = sprintf(
@@ -226,6 +236,9 @@ class Filesystem
      * @param string $target    Target file.
      * @param bool   $overwrite Whether to overwrite existing files or not.
      *
+     * @codeCoverageIgnore
+     *
+     * @return void
      * @since 0.1.0
      */
     public function move($source, $target, $overwrite = true)
@@ -298,6 +311,8 @@ class Filesystem
      *
      * @param string $path Path to file.
      *
+     * @codeCoverageIgnore
+     *
      * @return string File contents.
      * @since 0.1.0
      */
@@ -311,6 +326,8 @@ class Filesystem
      *
      * @param string $path    Path to file.
      * @param string $content New file contents.
+     *
+     * @codeCoverageIgnore
      *
      * @return int
      * @since 0.1.0

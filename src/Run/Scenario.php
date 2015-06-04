@@ -9,9 +9,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver;
 use Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException;
-
-use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager;
-use Exception;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\Cleaner;
 
 /**
  * This is an actual scenario that takes place during single run.
@@ -53,22 +51,22 @@ class Scenario
      */
     private $runner;
     /**
-     * Instance of temporary nodes manager for the cleaner.
+     * Cleaner service.
      *
-     * // todo implement cleaner service
-     *
-     * @type TemporaryNodesManager
+     * @type Cleaner
      * @since 0.1.0
      */
-    private $temporaryNodesManager;
+    private $cleaner;
 
     /**
      * Initializer.
      *
-     * @param Configuration            $configuration  Allure configuration.
+     * @param Configuration            $configuration  Allure runner
+     *                                                 configuration.
      * @param AllureExecutableResolver $allureResolver Allure executable
      *                                                 resolver.
-     * @param Runner                   $runner         Real runner.
+     * @param Runner                   $runner         Real CLI runner.
+     * @param Cleaner                  $cleaner        Post-run cleaner service.
      * @param IOControllerInterface    $ioController   I/O controller.
      *
      * @SuppressWarnings(PHPMD.LongVariableName)
@@ -80,73 +78,94 @@ class Scenario
         Configuration $configuration,
         AllureExecutableResolver $allureResolver,
         Runner $runner,
-        TemporaryNodesManager $temporaryNodesManager,
+        Cleaner $cleaner,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
         $this->allureResolver = $allureResolver;
         $this->runner = $runner;
-        $this->temporaryNodesManager = $temporaryNodesManager;
+        $this->cleaner = $cleaner;
         $this->ioController = $ioController;
     }
 
     /**
      * Runs scenario.
      *
-     * @return int Exit code.
+     * @return Report Run report.
      * @since 0.1.0
      */
     public function run()
     {
-        $executable = $this->getExecutable();
+        $executable = $this->allureResolver->getAllureExecutable();
         if (!$executable) {
-            $this->ioController->writeLine(
-                'Couldn\'t find Allure executable',
-                Verbosity::LEVEL_ERROR
-            );
-            return 1;
+            return $this->handleExecutableNotFoundCase();
         }
         $runOptions = $this->createRunOptions();
-        try {
-            $exitCode = $this->runner->run($executable, $runOptions);
-        } catch (Exception $e) {
-            $message = sprintf(
-                'Run terminated with exception `%s`:',
-                get_class($e)
-            );
-            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
-            $message = $e->getMessage();
-            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
-            $this->ioController->writeLine(
-                $e->getTraceAsString(),
-                Verbosity::LEVEL_DEBUG
-            );
-            $exitCode = $e->getCode() == 0 ? 127 : $e->getCode();
+        $this->ioController->writeLine(
+            'Invoking Allure',
+            Verbosity::LEVEL_INFO
+        );
+        $report = $this->runner->run($executable, $runOptions);
+        $this->ioController->writeLine(
+            'Allure run finished',
+            Verbosity::LEVEL_DEBUG
+        );
+        $this->handleRunResult($report);
+        if ($this->configuration->shouldCleanGeneratedFiles()) {
+            $this->cleaner->cleanUp();
         }
-        if ($exitCode) {
-            $message = 'Allure CLI has never successfully finished';
-            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
-        }
-        $this->cleanUp();
-        return $exitCode;
+        return $report;
     }
 
     /**
-     * Locates Allure executable.
+     * Works out the case when Allure executable is missing,
      *
-     * @throws AllureExecutableNotFoundException Thrown in case Runner couldn't
-     *                                           find Allure executable.
-     *
-     * @return string Allure executable sting (either path to single executable
-     *                file or `<path/to/java> -jar <path/to/jar>` string).
+     * @return Report
      * @since 0.1.0
      */
-    private function getExecutable()
+    private function handleExecutableNotFoundCase()
     {
-        if ($command = $this->allureResolver->getAllureExecutable()) {
-            return $command;
+        $this->ioController->writeLine(
+            'Couldn\'t find Allure executable',
+            Verbosity::LEVEL_ERROR
+        );
+        $report = new Report(
+            Report::STATUS_HALTED,
+            null,
+            null,
+            null,
+            new AllureExecutableNotFoundException
+        );
+        return $report;
+    }
+
+    /**
+     * Performs post-run work.
+     *
+     * @param Report $report Report instance.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    private function handleRunResult(Report $report)
+    {
+        if ($report->getStatus() !== Report::STATUS_SUCCESS) {
+            $message = 'Allure CLI run has never successfully finished';
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
         }
-        throw new AllureExecutableNotFoundException;
+        if ($exception = $report->getException()) {
+            $message = sprintf(
+                'Run halted with exception `%s`:',
+                get_class($exception)
+            );
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
+            $message = $exception->getMessage();
+            $this->ioController->writeLine($message, Verbosity::LEVEL_ERROR);
+            $this->ioController->writeLine(
+                $exception->getTraceAsString(),
+                Verbosity::LEVEL_DEBUG
+            );
+        }
     }
 
     /**
@@ -162,16 +181,5 @@ class Scenario
         $options->setReportVersion($this->configuration->getReportVersion());
         $options->setSources($this->configuration->getSources());
         return $options;
-    }
-
-    /**
-     * Cleans up.
-     *
-     * @return void
-     * @since 0.1.0
-     */
-    private function cleanUp()
-    {
-        $this->temporaryNodesManager->removeTemporaryNodes();
     }
 }

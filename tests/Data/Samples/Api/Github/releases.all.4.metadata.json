@@ -1,0 +1,22 @@
+{
+  "length": 5,
+  "request": {
+    "url": "https://api.github.com/repos/allure-framework/allure-cli/releases"
+  },
+  "tags": ["prereleases-excluded", "sorted-desc"],
+  "meta": {
+    "latest-release-id": 735523,
+    "latest-release-url": "https://github.com/allure-framework/allure-cli/releases/download/allure-cli-2.3/allure-cli.zip",
+    "tag-map": {
+      "2.0": 500038,
+      "2.1": 505938,
+      "2.2": 710564,
+      "2.3": 735523,
+      "Allure cli 2.3": 735523,
+      "allure-cli-2.2": 710564,
+      "cli 2.1": 505938
+    },
+    "date-order": [500038, 505938, 561069, 710564, 735523],
+    "prerelease-filtered": [500038, 505938, 710564, 735523]
+  }
+}

@@ -15,7 +15,7 @@ namespace Etki\Testing\AllureFramework\Runner\Environment\Filesystem;
  * @package Etki\Testing\AllureFramework\Runner\Environment\Filesystem
  * @author  Etki <etki@etki.name>
  */
-interface ExecutableLocationCommandsProviderInterface
+interface ExecutableLocationCommandProviderInterface
 {
     /**
      * Returns list of sprintf-ready executable location command templates.

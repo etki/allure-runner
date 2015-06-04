@@ -31,6 +31,8 @@ class FileLocatorCommandProviderFactory
      *
      * @param Runtime $runtime Runtime object instance.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */
@@ -42,7 +44,7 @@ class FileLocatorCommandProviderFactory
     /**
      * Returns file location command template provider for current OS.
      *
-     * @return FileLocationCommandsProviderInterface
+     * @return FileLocationCommandProviderInterface
      * @since 0.1.0
      */
     public function getFileLocationCommandTemplatesProvider()
@@ -66,7 +68,7 @@ class FileLocatorCommandProviderFactory
     /**
      * Returns executable location command template provider for current OS.
      *
-     * @return ExecutableLocationCommandsProviderInterface
+     * @return ExecutableLocationCommandProviderInterface
      * @since 0.1.0
      */
     public function getExecutableLocationCommandTemplatesProvider()

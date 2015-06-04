@@ -3,7 +3,7 @@
 namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory;
 
 use BadMethodCallException;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractTest;
 use PHPUnit_Framework_MockObject_MockBuilder as MockBuilder;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 use ReflectionClass;
@@ -36,7 +36,7 @@ abstract class AbstractMockFactory
     /**
      * Current test.
      *
-     * @type Test
+     * @type AbstractTest
      * @since 0.1.0
      */
     private $test;
@@ -130,7 +130,7 @@ abstract class AbstractMockFactory
     /**
      * Creates and returns prepared mock builder.
      *
-     * @param array $arguments Conttructor arguments.
+     * @param array $arguments Constructor arguments.
      *
      * @return MockBuilder
      * @since 0.1.0
@@ -154,20 +154,18 @@ abstract class AbstractMockFactory
     /**
      * Retrieves mock.
      *
-     * @param array $arguments List of constructor arguments.
-     *
      * @return Mock
      * @since 0.1.0
      */
-    public function getMock(array $arguments = array())
+    public function getMock()
     {
-        return $this->getPreparedMockBuilder($arguments)->getMock();
+        return $this->getPreparedMockBuilder(func_get_args())->getMock();
     }
 
     /**
      * Returns mock that doesn't call constructor.
      *
-     * @param Test $test Currently run test.
+     * @param AbstractTest $test Currently run test.
      *
      * @return Mock
      * @since 0.1.0
@@ -202,12 +200,12 @@ abstract class AbstractMockFactory
     /**
      * Sets current test.
      *
-     * @param Test $test Currently run test.
+     * @param AbstractTest $test Currently run test.
      *
      * @return $this Current instance;
      * @since 0.1.0
      */
-    public function setTest(Test $test)
+    public function setTest(AbstractTest $test)
     {
         $this->test = $test;
         return $this;
@@ -216,7 +214,7 @@ abstract class AbstractMockFactory
     /**
      * Retrieves current test.
      *
-     * @return Test
+     * @return AbstractTest
      * @since 0.1.0
      */
     protected function getTest()

@@ -2,19 +2,24 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\AllureCli;
 
+use Doctrine\Common\Annotations\Annotation\IgnoreAnnotation;
 use Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 
 /**
  * Tests command builder.
+ *
+ * @method CommandBuilder createTestInstance(string $executable = null, string $command = null)
+ *
+ * @IgnoreAnnotation(value={"expectedException"})
  *
  * @version 0.1.0
  * @since   0.1.0
  * @package Etki\Testing\AllureFramework\Runner\Tests\Unit\Environment
  * @author  Etki <etki@etki.name>
  */
-class CommandBuilderTest extends Test
+class CommandBuilderTest extends AbstractClassAwareTest
 {
     /**
      * Tested class FQCN.
@@ -31,18 +36,17 @@ class CommandBuilderTest extends Test
      */
     protected $tester;
 
-    // utility
-    
+    // utility methods
+
     /**
-     * Creates test instance.
+     * Returns tested class.
      *
-     * @return CommandBuilder
+     * @return string
      * @since 0.1.0
      */
-    private function createInstance()
+    public function getTestedClass()
     {
-        $class = self::TESTED_CLASS;
-        return new $class;
+        return self::TESTED_CLASS;
     }
     
     // data providers
@@ -57,13 +61,19 @@ class CommandBuilderTest extends Test
     {
         return array(
             array(
-                '/usr/bin/java -jar /home/dummy/allure.jar',
                 array(
-                    '/var/www/oldskool/reports',
-                    '/var/www/oldskool/tests/report-data'
+                    'executable' => '/usr/bin/java -jar /home/dummy/allure.jar',
+                    'command' => 'generate',
+                    'options' => array(
+                        'report-path' => '/tmp',
+                        'report-version' => '1.4.9',
+                    ),
+                    'arguments' => array(),
+                    'postArguments' => array(
+                        '/var/www/oldskool/reports',
+                        '/var/www/oldskool/tests/report-data'
+                    ),
                 ),
-                '/tmp',
-                '1.4.9',
                 implode(
                     ' ',
                     array(
@@ -78,10 +88,18 @@ class CommandBuilderTest extends Test
                 ),
             ),
             array(
-                'allure.bat',
-                array('D:/Projects/Oldskool/tests/report-data',),
-                'C:\Temp',
-                '1.4.9',
+                array(
+                    'executable' => 'allure.bat',
+                    'command' => 'generate',
+                    'options' => array(
+                        'report-path' => 'C:\Temp',
+                        'report-version' => '1.4.9',
+                    ),
+                    'arguments' => array(),
+                    'postArguments' => array(
+                        'D:/Projects/Oldskool/tests/report-data',
+                    ),
+                ),
                 implode(
                     ' ',
                     array(
@@ -95,10 +113,17 @@ class CommandBuilderTest extends Test
                 ),
             ),
             array(
-                'allure.bat',
-                array('C:\\hryuchevo new'),
-                null,
-                '1.4.9',
+                array(
+                    'executable' => 'allure.bat',
+                    'command' => 'generate',
+                    'options' => array(
+                        'report-version' => '1.4.9',
+                    ),
+                    'arguments' => array(),
+                    'postArguments' => array(
+                        'C:\\hryuchevo new',
+                    ),
+                ),
                 implode(
                     ' ',
                     array(
@@ -110,6 +135,16 @@ class CommandBuilderTest extends Test
                     )
                 )
             ),
+            array(
+                array(
+                    'executable' => '/usr/bin/dummy',
+                    'command' => 'dummy',
+                    'options' => array(),
+                    'arguments' => array('up', 'down',),
+                    'postArguments' => array(),
+                ),
+                '/usr/bin/dummy dummy up down',
+            )
         );
     }
     
@@ -118,11 +153,8 @@ class CommandBuilderTest extends Test
     /**
      * Tests generate command build.
      *
-     * @param string   $executable       Executable to run.
-     * @param string[] $sources          Sources list.
-     * @param string   $outputDirectory  Output directory.
-     * @param string   $reportVersion    Report version to use.
-     * @param string   $expectedOutput   Expected result.
+     * @param array  $definitions    List of command build definitions.
+     * @param string $expectedOutput Expected result.
      *
      * @dataProvider generateCommandDataProvider
      *
@@ -130,19 +162,40 @@ class CommandBuilderTest extends Test
      * @since 0.1.0
      */
     public function testGenerateCommandBuild(
-        $executable,
-        array $sources,
-        $outputDirectory,
-        $reportVersion,
+        array $definitions,
         $expectedOutput
     ) {
-        $builder = $this->createInstance();
-        $command = $builder->buildGenerateCommand(
-            $executable,
-            $sources,
-            $outputDirectory,
-            $reportVersion
-        );
-        $this->assertSame($expectedOutput, $command);
+        $builder = $this->createTestInstance();
+        $builder->setExecutable($definitions['executable'])
+            ->setCommand($definitions['command'])
+            ->addOptions($definitions['options'])
+            ->addArguments($definitions['arguments'])
+            ->addPostArguments($definitions['postArguments']);
+        $this->assertSame($expectedOutput, $builder->getCommand());
+    }
+    public function testGenerateEmptyCommand()
+    {
+        $executable = 'fakecutable';
+        $builder = $this->createTestInstance($executable);
+        $this->assertSame($executable, $builder->getCommand());
+    }
+
+    /**
+     * Verifies that exception will be thrown on missing executable.
+     *
+     * @expectedException \Etki\Testing\AllureFramework\Runner\Exception\AllureCli\ExecutableNotSpecifiedException
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function testMissingExecutableReaction()
+    {
+        $builder = $this->createTestInstance();
+        $builder
+            ->setCommand('command')
+            ->addArgument('dummy')
+            ->addOption('dummy', 'dummy')
+            ->addPostArguments(array('dummy',))
+            ->getCommand();
     }
 }

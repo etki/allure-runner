@@ -2,7 +2,7 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Utility;
 
-use Rhumsaa\Uuid\Uuid;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Basic wrapper around rhumsa/uuid to keep things in container.

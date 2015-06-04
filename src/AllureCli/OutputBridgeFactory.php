@@ -18,7 +18,7 @@ use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 class OutputBridgeFactory
 {
     /**
-     * Allure CLi output formatter.
+     * Allure CLI output formatter.
      *
      * @type OutputFormatter
      * @since 0.1.0

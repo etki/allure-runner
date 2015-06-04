@@ -16,43 +16,40 @@ use Exception;
 class ReleaseNotFoundException extends RuntimeException
 {
     /**
-     * Used release tag.
-     *
-     * @type string
-     * @since 0.1.0
-     */
-    private $tag;
-
-    /**
      * Initializer.
      *
-     * @param string    $tag      Used release tag.
      * @param string    $message  Exception message.
+     * @param int       $code     Exception code.
      * @param Exception $previous Previous exception.
+     *
+     * @codeCoverageIgnore
      *
      * @return self
      * @since 0.1.0
      */
     public function __construct(
-        $tag,
-        $message = null,
+        $message,
+        $code = 0,
         Exception $previous = null
     ) {
-        $this->tag = $tag;
         if (!$message) {
-            $message = sprintf('Release `%s` could not be found', $tag);
+            $message = 'Could not find specified release';
         }
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message, $code, $previous);
     }
 
     /**
-     * Returns release tag.
+     * Creates default message,
+     *
+     * @param string $tag Tag name,
+     *
+     * @codeCoverageIgnore
      *
      * @return string
      * @since 0.1.0
      */
-    public function getReleaseTag()
+    public static function createDefaultMessage($tag)
     {
-        return $this->tag;
+        return sprintf('Release `%s` could not be found', $tag);
     }
 }

@@ -3,12 +3,12 @@
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\AllureCli;
 
 use Etki\Testing\AllureFramework\Runner\AllureCli\Run;
-use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 
 /**
- * This class tests Allure run wrapper class.
+ * This class tests Allure run wrapper class. As Run delegated it's features to
+ * other classes, test has become very formal and blackbox'ish.
  *
  * @version 0.1.0
  * @since   0.1.0
@@ -37,12 +37,12 @@ class RunTest extends AbstractClassAwareTest
     const OUTPUT_BRIDGE_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\OutputBridge';
     /**
-     * Output parser FQCN.
+     * PHP API FQCN.
      *
      * @since 0.1.0
      */
-    const OUTPUT_PARSER_CLASS
-        = 'Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser';
+    const PHP_API_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\PhpApi';
     /**
      * Tester instance.
      *
@@ -67,22 +67,29 @@ class RunTest extends AbstractClassAwareTest
     /**
      * Creates prepared test instance.
      *
-     * @param int       $processExitCode Exit code that will be returned by
-     *                                   underlying process (Allure run).
-     * @param bool|null $detectionResult Result of parser success detection.
+     * @param int    $processExitCode Exit code that will be returned by
+     *                                underlying process (Allure run).
+     *
+     * @param string $processOutput   Process string output.
+     * @param int    $startTime       Process starting time.
+     * @param int    $endTime         Process ending time.
      *
      * @return Run
      * @since 0.1.0
      */
-    protected function createTestInstance($processExitCode, $detectionResult)
-    {
+    protected function createTestInstance(
+        $processExitCode,
+        $processOutput,
+        $startTime = 0,
+        $endTime = 1
+    ) {
         $processMock = $this
             ->getMockFactory(self::SYMFONY_PROCESS_CLASS)
             ->getConstructorlessMock();
         $processMock
             ->expects($this->atLeastOnce())
             ->method('run')
-            ->willReturn(null);
+            ->willReturn($processExitCode);
         $processMock
             ->expects($this->atLeastOnce())
             ->method('getExitCode')
@@ -90,17 +97,21 @@ class RunTest extends AbstractClassAwareTest
         $bridgeMock = $this
             ->getMockFactory(self::OUTPUT_BRIDGE_CLASS)
             ->getConstructorlessMock();
-        $parserMock = $this
-            ->getMockFactory(self::OUTPUT_PARSER_CLASS)
-            ->getConstructorlessMock();
-        $parserMock
+        $bridgeMock
+            ->expects($this->atLeastOnce())
+            ->method('getOutput')
+            ->willReturn($processOutput);
+        $phpApiMock = $this
+            ->getMockFactory(self::PHP_API_CLASS)
+            ->getMock();
+        $phpApiMock
             ->expects($this->any())
-            ->method('isSuccessfulRun')
-            ->willReturn($detectionResult);
+            ->method('getTime')
+            ->willReturnOnConsecutiveCalls($startTime, $endTime);
         $instance = parent::createTestInstance(
             $processMock,
             $bridgeMock,
-            $parserMock
+            $phpApiMock
         );
         return $instance;
     }
@@ -116,11 +127,10 @@ class RunTest extends AbstractClassAwareTest
     public function runDataProvider()
     {
         return array(
-            array(0, null, 0,),
-            array(0, true, 0,),
-            array(0, false, Configuration::GENERIC_ERROR_EXIT_CODE,),
-            array(100, null, 100),
-            array(100, false, 100),
+            // exit code, output, start time, end time
+            array(0, '', 100.0, 101.0,),
+            array(100, 'dummy', 100.0, 101.0,),
+            array(100, 'dummy',  100.0, 101.0,),
         );
     }
     
@@ -129,9 +139,10 @@ class RunTest extends AbstractClassAwareTest
     /**
      * Tests Allure run wrapper.
      *
-     * @param int       $processExitCode Process exit code.
-     * @param bool|null $detectionResult Success detection result.
-     * @param int       $expectedResult  Expected run result.
+     * @param int    $processExitCode Process exit code.
+     * @param string $processOutput   Process output.
+     * @param float  $startTime       Starting time.
+     * @param float  $endTime         Ending time.
      *
      * @dataProvider runDataProvider
      *
@@ -140,10 +151,21 @@ class RunTest extends AbstractClassAwareTest
      */
     public function testRun(
         $processExitCode,
-        $detectionResult,
-        $expectedResult
+        $processOutput,
+        $startTime,
+        $endTime
     ) {
-        $run = $this->createTestInstance($processExitCode, $detectionResult);
-        $this->assertSame($expectedResult, $run->run());
+        $instance = $this->createTestInstance(
+            $processExitCode,
+            $processOutput,
+            $startTime,
+            $endTime
+        );
+        $instance->run();
+        $this->assertSame($instance->getStartTime(), $startTime);
+        $this->assertSame($instance->getEndTime(), $endTime);
+        $this->assertSame($instance->getRunningTime(), $endTime - $startTime);
+        $this->assertSame($instance->getOutput(), $processOutput);
+        $this->assertSame($instance->getExitCode(), $processExitCode);
     }
 }

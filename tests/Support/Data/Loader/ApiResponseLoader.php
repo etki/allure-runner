@@ -34,13 +34,14 @@ class ApiResponseLoader
     /**
      * Retrieves particular API response.
      *
-     * @param string $api    API name.
-     * @param string $method API method.
+     * @param string $api          API name.
+     * @param string $method       API method.
+     * @param int    $sampleNumber ID of the sample to use.
      *
      * @return array Response data.
      * @since 0.1.0
      */
-    public function getResponse($api, $method)
+    public function getResponse($api, $method, $sampleNumber = 1)
     {
         if (!isset($this->api[$api])) {
             $message = sprintf('Unknown API `%s`', $api);
@@ -48,10 +49,18 @@ class ApiResponseLoader
         }
         $root = $this->getRoot();
         $method = $this->sanitizeMethod($method);
-        $fileName = $method . '.1.json';
-        $chunks = array($root, $this->api[$api], $fileName);
-        $path = implode(DIRECTORY_SEPARATOR, $chunks);
-        return json_decode(file_get_contents($path), true);
+        $chunks = array($root, $this->api[$api], '');
+        $prefix = implode(DIRECTORY_SEPARATOR, $chunks);
+        $path = sprintf('%s.%s.json', $prefix . $method, $sampleNumber);
+        $metadataPath = sprintf(
+            '%s.%s.metadata.json',
+            $prefix . $method,
+            $sampleNumber
+        );
+        $response = json_decode(file_get_contents($path), true);
+        $metadata = json_decode(file_get_contents($metadataPath), true);
+        
+        return array('response' => $response, 'metadata' => $metadata,);
     }
 
     /**

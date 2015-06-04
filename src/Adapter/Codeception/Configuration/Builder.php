@@ -5,7 +5,7 @@ namespace Etki\Testing\AllureFramework\Runner\Adapter\Codeception\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Codeception\Configuration as CodeceptionConfiguration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Exception\Configuration\BadConfigurationException;
+use Etki\Testing\AllureFramework\Runner\Exception\Configuration\InvalidConfigurationException;
 use Etki\Testing\AllureFramework\Runner\Utility\Filesystem as FilesystemHelper;
 use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem as FilesystemApi;
 use Etki\Testing\AllureFramework\Runner\Utility\UuidFactory;
@@ -130,7 +130,7 @@ class Builder
      *
      * @param array $configuration Configuration to examine.
      *
-     * @throws BadConfigurationException Thrown if any of parameters didn't pass
+     * @throws InvalidConfigurationException Thrown if any of parameters didn't pass
      *                                   validation.
      *
      * @return void
@@ -155,7 +155,7 @@ class Builder
                 'configuration.',
                 implode(', ', $invalidParameters)
             );
-            throw new BadConfigurationException($message);
+            throw new InvalidConfigurationException($message);
         }
     }
 

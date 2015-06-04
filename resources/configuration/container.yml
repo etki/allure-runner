@@ -33,14 +33,15 @@ services:
     class: Guzzle\Http\Client
   github_api_client:
     class: Github\Client
+  github_release_collection_manipulator:
+    class: Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseCollectionManipulator
+  github_release_resolver:
+    class: Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseResolver
+    arguments:
+      - @github_api_client
+      - @github_release_collection_manipulator
   github_release_asset_resolver:
     class: Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver
-    arguments:
-      - @github_api_client
-  github_lastest_release_resolver:
-    class: Etki\Testing\AllureFramework\Runner\Api\Github\LatestReleaseResolver
-    arguments:
-      - @github_api_client
   configuration_validator:
     class: Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator
     arguments:
@@ -56,6 +57,10 @@ services:
     class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem\TemporaryNodesManager
     arguments:
       - @filesystem_helper
+  cleaner:
+    class: Etki\Testing\AllureFramework\Runner\Utility\Filesystem\Cleaner
+    arguments:
+      - @temporary_filesystem_nodes_manager
   zip_archive_factory:
     class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi\ZipArchiveFactory
   zip_extractor:
@@ -101,8 +106,8 @@ services:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetUrlResolver
     arguments:
       - %configuration%
+      - @github_release_resolver
       - @github_release_asset_resolver
-      - @github_lastest_release_resolver
       - @io_controller
   jar_resolver:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario\JarResolver
@@ -119,6 +124,7 @@ services:
       - @file_locator
       - @java_locator
       - @jar_resolver
+      - @filesystem_helper
       - @io_controller
   allure_output_formatter:
     class: Etki\Testing\AllureFramework\Runner\AllureCli\OutputFormatter
@@ -134,19 +140,21 @@ services:
     arguments:
       - @process_factory
       - @bridge_factory
-      - @allure_output_parser
-  command_builder:
-    class: Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder
+      - @php_api
+  command_builder_factory:
+    class: Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilderFactory
   runner:
     class: Etki\Testing\AllureFramework\Runner\AllureCli\Runner
     arguments:
       - @run_factory
-      - @command_builder
+      - @command_builder_factory
+      - @allure_output_parser
+      - @io_controller
   scenario:
     class: Etki\Testing\AllureFramework\Runner\Run\Scenario
     arguments:
       - %configuration%
       - @allure_resolver
       - @runner
-      - @temporary_filesystem_nodes_manager
+      - @cleaner
       - @io_controller

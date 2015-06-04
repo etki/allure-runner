@@ -4,6 +4,7 @@ namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\Environ
 
 use Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockFactory;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\Vendor\Symfony\Component\Process\ProcessMockFactory;
 use Symfony\Component\Process\Process;
 use Codeception\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
@@ -25,6 +26,12 @@ class ProcessFactoryMockFactory extends AbstractMockFactory
      */
     const MOCKED_CLASS
         = '\Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory';
+    /**
+     * Process FQCN.
+     *
+     * @since 0.1.0
+     */
+    const PROCESS_CLASS = 'Symfony\Component\Process\Process';
 
     /**
      * Returns mocked class FQCN.
@@ -40,28 +47,30 @@ class ProcessFactoryMockFactory extends AbstractMockFactory
     /**
      * Returns mock object ready for setting up.
      *
-     * @param Process  $process  Process instance to return on `getProcess()`
-     *                           call.
+     * @param string $output   Process output.
+     * @param int    $exitCode Process exit code.
      *
      * @return Mock|ProcessFactory
      * @since 0.1.0
      */
-    public function getPreparedMock(Process $process = null)
+    public function getPreparedMock($output, $exitCode = 0)
     {
+        /** @type ProcessMockFactory $processMockFactory */
+        $processMockFactory
+            = $this->getTest()->getMockFactory(self::PROCESS_CLASS);
+        $processMock = $processMockFactory->getPreparedMock($exitCode, $output);
         $mockBuilder = $this->getPreparedMockBuilder();
         $mockBuilder->disableOriginalConstructor();
         $mock = $mockBuilder->getMock();
-        if ($process) {
-            $mock
-                ->expects($this->getTest()->any())
-                ->method('getProcess')
-                ->willReturnCallback(
-                    function ($command) use ($process) {
-                        $process->setCommandLine($command);
-                        return $process;
-                    }
-                );
-        }
+        $mock
+            ->expects($this->getTest()->any())
+            ->method('getProcess')
+            ->willReturnCallback(
+                function ($command) use ($processMock) {
+                    $processMock->setCommandLine($command);
+                    return $processMock;
+                }
+            );
         return $mock;
     }
 }

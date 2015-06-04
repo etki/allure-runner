@@ -6,6 +6,7 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
 
 /**
  * Locates Allure executable (or doesn't).
@@ -52,7 +53,14 @@ class AllureExecutableResolver
      * @since 0.1.0
      */
     private $jarResolver;
-    
+    /**
+     * Filesystem helper.
+     *
+     * @type Filesystem
+     * @since 0.1.0
+     */
+    private $filesystem;
+
     /**
      * Initializer.
      *
@@ -60,9 +68,11 @@ class AllureExecutableResolver
      * @param FileLocator           $fileLocator   File locator for current OS.
      * @param JavaExecutableLocator $javaLocator   Java executable locator.
      * @param JarResolver           $jarResolver   Allure `.jar` file resolver.
+     * @param Filesystem            $filesystem    Filesystem helper.
      * @param IOControllerInterface $ioController  I\O controller instance.
      *
-     * @return self
+     * @codeCoverageIgnore
+     *
      * @since 0.1.0
      */
     public function __construct(
@@ -70,12 +80,14 @@ class AllureExecutableResolver
         FileLocator $fileLocator,
         JavaExecutableLocator $javaLocator,
         JarResolver $jarResolver,
+        Filesystem $filesystem,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
         $this->fileLocator = $fileLocator;
         $this->javaLocator = $javaLocator;
         $this->jarResolver = $jarResolver;
+        $this->filesystem = $filesystem;
         $this->ioController = $ioController;
     }
 
@@ -134,6 +146,13 @@ class AllureExecutableResolver
     private function getConfigurationExecutable()
     {
         $executable = $this->configuration->getExecutable();
+        if (!$this->filesystem->exists($executable)) {
+            $paths = $this->fileLocator->locateExecutable($executable);
+            if (!$paths) {
+                return null;
+            }
+            $executable = reset($paths);
+        }
         if (!$this->testExecutable($executable)) {
             if ($executable) {
                 $message = sprintf(
@@ -197,7 +216,7 @@ class AllureExecutableResolver
         if (!$executable) {
             return false;
         }
-        if (!is_executable($executable)) {
+        if (!$this->filesystem->isExecutable($executable)) {
             $message = sprintf(
                 'File `%s` doesn\'t appear to be executable',
                 $executable

@@ -25,49 +25,56 @@ class ContainerBuilder
     /**
      * Builds container.
      *
-     * @param PathResolver          $pathResolver  PathResolver instance.
-     * @param Configuration         $configuration Configuration instance.
-     * @param IOControllerInterface $ioController  I/O controller.
+     * @param string[]  $configurationPaths List of container configuration
+     *                                      paths.
+     * @param object[]  $extraServices      List of extra services not specified
+     *                                      in configuration.
+     * @param mixed[]   $extraParameters    Extra container parameters not
+     *                                      specified in configuration files
+     *                                      (e.g. runtime configuration).
+     * @param Container $container          Container instance, if already
+     *                                      created.
      *
      * @return Container
      * @since 0.1.0
      */
     public function build(
-        PathResolver $pathResolver,
-        Configuration $configuration,
-        IOControllerInterface $ioController = null
+        array $configurationPaths,
+        array $extraServices = array(),
+        array $extraParameters = array(),
+        Container $container = null
     ) {
-        $container = $this->createContainer($pathResolver);
-        $container->set('path_resolver', $pathResolver);
-        $container->setParameter('configuration', $configuration);
-        if ($ioController) {
-            $container->set('io_controller', $ioController);
+        if (!$container) {
+            $container = $this->createContainer($configurationPaths);
+        }
+        foreach ($extraServices as $key => $service) {
+            $container->set($key, $service);
+        }
+        foreach ($extraParameters as $key => $parameter) {
+            $container->setParameter($key, $parameter);
         }
         $this->injectMissingDependencies($container);
-        $container->compile();
         return $container;
     }
 
     /**
      * Creates container instance.
      *
-     * @param PathResolver $pathResolver
+     * @param string[] $configurationPaths List of paths to configuration files.
      *
      * @SuppressWarnings(PHPMD.LongVariableName)
      *
      * @return Container
      * @since 0.1.0
      */
-    private function createContainer(PathResolver $pathResolver)
+    private function createContainer(array $configurationPaths)
     {
         $container = new Container;
         $locator = new FileLocator;
         $loader = new YamlFileLoader($container, $locator);
-        $configurationFileName
-            = Configuration::CONTAINER_CONFIGURATION_FILE_NAME;
-        $configurationFilePath
-            = $pathResolver->getConfigurationFile($configurationFileName);
-        $loader->load($configurationFilePath);
+        foreach ($configurationPaths as $configurationFilePath) {
+            $loader->load($configurationFilePath);
+        }
         return $container;
     }
 
