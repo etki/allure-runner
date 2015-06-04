@@ -5,6 +5,7 @@ namespace Etki\Testing\AllureFramework\Runner\Run\Scenario;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
+use Etki\Testing\AllureFramework\Runner\Utility\Filesystem;
 use Exception;
 
 /**
@@ -52,6 +53,13 @@ class JarResolver
      * @since 0.1.0
      */
     private $assetUrlResolver;
+    /**
+     * Filesystem helper.
+     *
+     * @type
+     * @since 0.1.0
+     */
+    private $filesystemHelper;
 
     /**
      * Initializer.
@@ -59,7 +67,8 @@ class JarResolver
      * @param Configuration         $configuration    Runner configuration.
      * @param JarLocator            $jarLocator       `.jar` file locator.
      * @param JarDownloader         $jarDownloader    `.jar` file downloader.
-     * @param JarAssetUrlResolver   $assetUrlResolver Source url resolver
+     * @param JarAssetUrlResolver   $assetUrlResolver Source url resolver.
+     * @param Filesystem            $filesystemHelper Filesystem helper.
      * @param IOControllerInterface $ioController     I\O controller.
      *
      * @return self
@@ -70,12 +79,14 @@ class JarResolver
         JarLocator $jarLocator,
         JarDownloader $jarDownloader,
         JarAssetUrlResolver $assetUrlResolver,
+        Filesystem $filesystemHelper,
         IOControllerInterface $ioController
     ) {
         $this->configuration = $configuration;
         $this->jarLocator = $jarLocator;
         $this->jarDownloader = $jarDownloader;
         $this->assetUrlResolver = $assetUrlResolver;
+        $this->filesystemHelper = $filesystemHelper;
         $this->ioController = $ioController;
     }
 
@@ -90,7 +101,6 @@ class JarResolver
         $message = 'Looking for `.jar` file';
         $this->ioController->writeLine($message, Verbosity::LEVEL_INFO);
         if ($jar = $this->getConfigurationJar()) {
-            // @todo and file_exists
             return $jar;
         }
         if ($jar = $this->jarLocator->getJar()) {
@@ -121,7 +131,7 @@ class JarResolver
             $this->ioController->writeLine($message, Verbosity::LEVEL_NOTICE);
             return null;
         }
-        if (!file_exists($jar)) {
+        if (!$this->filesystemHelper->exists($jar)) {
             $message = sprintf(
                 'Jar file `%s` (specified in configuration) doesn\'t exist',
                 $jar

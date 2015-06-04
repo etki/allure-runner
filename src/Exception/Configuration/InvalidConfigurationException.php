@@ -17,6 +17,8 @@ class InvalidConfigurationException extends LogicException
     /**
      * Default exception message.
      *
+     * @codeCoverageIgnore
+     *
      * @return string
      * @since 0.1.0
      */

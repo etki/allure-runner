@@ -3,11 +3,7 @@
 
 # services to be set by hand
 # - @io_controller (optional) - Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface - will replace default do-nothing blackhole dummy
-# - @service_container - Symfony\Component\DependencyInjection\Container
-# - @path_resolver - Etki\Testing\AllureFramework\Runner\Utility\PathResolver
-# - @validator - Symfony\Component\Validator\Validator\ValidatorInterface
-
-# @todo extra symfony_filesystem is just ridiculous.
+# - @path_resolver (optional) - Etki\Testing\AllureFramework\Runner\Utility\PathResolver - currently isn't used anywhere
 
 parameters:
 services:

@@ -6,3 +6,9 @@ languages:
 exclude_paths:
   - "tests/*"
   - "docs/*"
+  # even though current configuration is already too big to rely on getters,
+  # setters and named properties, i'll stick with it
+  - "src/Configuration/Configuration.php"
+  # And this thing was built as an OOP-for-OOP shmandy, i know it sucks and i
+  # don't believe i'll fix it one day
+  - "src/Environment/Filesystem/FileLocatorCommandProviderFactory.php"
