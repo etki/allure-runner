@@ -7,7 +7,6 @@ use Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem
     as FilesystemApi;
 use Etki\Testing\AllureFramework\Runner\Utility\UuidFactory;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
@@ -193,7 +192,7 @@ class FilesystemTest extends AbstractClassAwareTest
     {
         $filesystemApi = $this->createFilesystemApiMock();
         $filesystemApi
-            ->expects($this->atLeastOnce())
+            ->expects($this->any())
             ->method('createTemporaryFile')
             ->willReturnCallback(
                 function ($directory, $prefix) {
@@ -225,18 +224,21 @@ class FilesystemTest extends AbstractClassAwareTest
      *
      * @expectedException \Etki\Testing\AllureFramework\Runner\Exception\Utility\Filesystem\TemporaryNodeCreationException
      *
+     * @SuppressWarnings(PHPMD.LongVariableName)
+     *
      * @return void
      * @since 0.1.0
      */
     public function testTemporaryFileCreationFailure()
     {
         // @codingStandardsIgnoreEnd
-        $filesystemApi = $this->createFilesystemApiMock();
-        $filesystemApi
+        $symfonyFilesystemMock = $this->createSymfonyFilesystemMock();
+        $symfonyFilesystemMock
             ->expects($this->any())
-            ->method('createTemporaryFile')
-            ->willReturn(false);
-        $this->createTestInstance($filesystemApi)->createTemporaryFile();
+            ->method('exists')
+            ->willReturn(true);
+        $instance = $this->createTestInstance(null, $symfonyFilesystemMock);
+        $instance->createTemporaryFile();
     }
 
     // @codingStandardsIgnoreStart

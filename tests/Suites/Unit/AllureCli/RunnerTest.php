@@ -9,7 +9,9 @@ use Etki\Testing\AllureFramework\Runner\AllureCli\Run;
 use Etki\Testing\AllureFramework\Runner\AllureCli\Runner;
 use Etki\Testing\AllureFramework\Runner\AllureCli\RunFactory;
 use Etki\Testing\AllureFramework\Runner\AllureCli\RunOptions;
+use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Run\Report;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Reflection\Registry;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use Exception;
 use UnitTester;
@@ -106,13 +108,15 @@ class RunnerTest extends AbstractClassAwareTest
     public function createTestInstance(
         RunFactory $runFactory = null,
         CommandBuilder $commandBuilder = null,
-        ResultOutputParser $outputParser = null
+        ResultOutputParser $outputParser = null,
+        IOControllerInterface $ioController = null
     ) {
         $commandBuilder = $commandBuilder ?: $this->createCommandBuilderMock();
         $instance = parent::createTestInstance(
             $runFactory ?: $this->createRunFactoryMock(),
             $this->createCommandBuilderFactoryMock($commandBuilder),
-            $outputParser ?: $this->createOutputParserMock()
+            $outputParser ?: $this->createOutputParserMock(),
+            $ioController ?: $this->createIoControllerMock()
         );
         return $instance;
     }
@@ -185,7 +189,26 @@ class RunnerTest extends AbstractClassAwareTest
         }
         $runFactory = $this->createRunFactoryMock($run);
         $outputParser = $this->createOutputParserMock($parserResponse);
-        return $this->createTestInstance($runFactory, null, $outputParser);
+        $instance = $this->createTestInstance(
+            $runFactory,
+            null,
+            $outputParser
+        );
+        return $instance;
+    }
+
+    /**
+     * Creates I/O controller mock
+     *
+     * @return IOControllerInterface|Mock
+     * @since 0.1.0
+     */
+    private function createIoControllerMock()
+    {
+        $mock = $this
+            ->getMockFactory(Registry::IO_CONTROLLER_INTERFACE)
+            ->getDummyMock();
+        return $mock;
     }
 
     /**

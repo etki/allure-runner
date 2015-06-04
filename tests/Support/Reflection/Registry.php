@@ -52,4 +52,11 @@ class Registry
      */
     const FILE_LOCATOR_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator';
+    /**
+     * I/O controller FQIN.
+     *
+     * @since 0.1.0
+     */
+    const IO_CONTROLLER_INTERFACE
+        = 'Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface';
 }
