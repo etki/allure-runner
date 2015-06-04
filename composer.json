@@ -41,7 +41,8 @@
     "codeception/codeception": "~2.0",
     "allure-framework/allure-codeception": "dev-master",
     "php-vfs/php-vfs": "~1.2",
-    "ramsey/uuid": "~3.0@dev"
+    "ramsey/uuid": "~3.0@dev",
+    "satooshi/php-coveralls": "dev-master"
   },
   "suggest": {
     "codeception/codeception": "Rich testing framework Allure runner provides support for",

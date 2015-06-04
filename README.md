@@ -2,9 +2,11 @@
 
 This project is in active development, anything may change at any moment and
 nothing is claimed to be working by now; documentation is mostly lying and
-several dogs are required to launch this program. 
+several dogs are required to launch this program.
 
 # Allure CLI runner
+
+[ ![Codeship Status for etki/allure-runner](https://codeship.com/projects/70cc58f0-ecb6-0132-a083-1232bdb5f33c/status?branch=master)](https://codeship.com/projects/83798)
 
 Hi there.
 

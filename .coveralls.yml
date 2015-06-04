@@ -1,0 +1,2 @@
+coverage_clover: tests/Output/Reports/Codeception/coverage.xml
+json_path: tests/Output/Reports/Coveralls/payload.json
