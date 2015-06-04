@@ -10,3 +10,5 @@ AnnotationReader::addGlobalIgnoredName('type');
 AnnotationReader::addGlobalIgnoredName('expectedException');
 AnnotationReader::addGlobalIgnoredName('codingStandardsIgnoreStart');
 AnnotationReader::addGlobalIgnoredName('codingStandardsIgnoreEnd');
+
+error_reporting(E_ALL ^ E_STRICT);
