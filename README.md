@@ -8,6 +8,9 @@ several dogs are required to launch this program.
 
 [ ![Codeship Status for etki/allure-runner](https://codeship.com/projects/70cc58f0-ecb6-0132-a083-1232bdb5f33c/status?branch=master)](https://codeship.com/projects/83798)
 
+[![Code Climate](https://codeclimate.com/github/etki/allure-runner/badges/gpa.svg)](https://codeclimate.com/github/etki/allure-runner)
+[![Test Coverage](https://codeclimate.com/github/etki/allure-runner/badges/coverage.svg)](https://codeclimate.com/github/etki/allure-runner/coverage)
+
 Hi there.
 
 This microproject helps with automated Allure CLI runs. Since PHP is not such a
