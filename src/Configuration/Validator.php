@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @package Etki\Testing\AllureFramework\Runner\Configuration
  * @author  Etki <etki@etki.name>
  */
-class ConfigurationValidator
+class Validator
 {
     /**
      * Underlying validator.

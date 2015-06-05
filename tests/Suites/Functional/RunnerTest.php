@@ -70,7 +70,7 @@ class RunnerTest extends AbstractClassAwareTest
         $configuration->setDownloadMissingJar($shouldDownloadMissingJar);
         $configuration->addSources($sources);
         $configuration->setThrowOnMissingExecutable(false);
-        $configuration->setThrowOnNonZeroResult(false);
+        $configuration->setThrowOnNonZeroExitCode(false);
         $configuration->setThrowOnInvalidConfiguration(false);
         return $configuration;
     }

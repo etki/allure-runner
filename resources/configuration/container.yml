@@ -24,6 +24,12 @@ services:
       - @php_api
   symfony_filesystem:
     class: Symfony\Component\Filesystem\Filesystem
+  configuration_builder:
+    class: Etki\Testing\AllureFramework\Runner\Configuration\Builder
+    arguments:
+      - @filesystem_helper
+      - @path_resolver
+      - @io_controller
   io_controller:
     class: Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController
   io_controller_configurator:
@@ -54,7 +60,7 @@ services:
     arguments:
       - @annotation_reader_factory
   configuration_validator:
-    class: Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator
+    class: Etki\Testing\AllureFramework\Runner\Configuration\Validator
     arguments:
       - @validator_factory
       - @io_controller

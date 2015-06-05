@@ -8,6 +8,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Allure runner configuration.
  *
+ * @SuppressWarnings(PHPMD.TooManyMethods) While this may be treated as design
+ * @SuppressWarnings(PHPMD.TooManyFields)  flaw, i prefer keep things this way.
+ *
  * @codeCoverageIgnore
  *
  * @version 0.1.0
@@ -24,11 +27,36 @@ class Configuration
      */
     const DEFAULT_REPORT_VERSION = '1.4.5';
     /**
+     * Allure version used by default.
+     *
+     * @since 0.1.0
+     */
+    const DEFAULT_ALLURE_VERSION = '2.3';
+    /**
+     * Default verbosity level.
+     *
+     * @since 0.1.0
+     */
+    const DEFAULT_VERBOSITY_LEVEL = Verbosity::LEVEL_WARNING;
+    /**
+     * Default I\O controller prefix format.
+     *
+     * @since 0.1.0
+     */
+    const DEFAULT_OUTPUT_PREFIX_FORMAT
+        = PrefixAwareIOControllerInterface::MEDIUM_PREFIX_FORMAT;
+    /**
      * Path to container configuration file.
      *
      * @since 0.1.0
      */
     const CONTAINER_CONFIGURATION_FILE_NAME = 'container.yml';
+    /**
+     * Path to default configuration file.
+     *
+     * @since 0.1.0
+     */
+    const DEFAULT_CONFIGURATION_FILE_NAME = 'runner.default.yml';
     /**
      * Username (orgname) of the corresponding repository owner on github.
      *
@@ -48,13 +76,19 @@ class Configuration
      */
     const GENERIC_ERROR_EXIT_CODE = 127;
     /**
+     * Value to use on specific properties for self-decision by runner.
+     *
+     * @since 0.1.0
+     */
+    const VALUE_AUTO = 'auto';
+    /**
      * This flag enables whole processing and allows to switch extension off
      * by setting a single flag.
      *
      * @type bool
      * @since 0.1.0
      */
-    private $enabled = false;
+    private $enabled;
     /**
      * List of report sources.
      *
@@ -75,7 +109,7 @@ class Configuration
      * @type string
      * @since 0.1.0
      */
-    private $reportVersion = self::DEFAULT_REPORT_VERSION;
+    private $reportVersion;
     /**
      * Path to Allure executable (not .jar file).
      *
@@ -96,15 +130,14 @@ class Configuration
      * @type string
      * @since 0.1.0
      */
-    private $verbosity = Verbosity::LEVEL_INFO;
+    private $verbosity;
     /**
      * Prefix format for logger.
      *
      * @type string
      * @since 0.1.0
      */
-    private $outputPrefixFormat
-        = PrefixAwareIOControllerInterface::MEDIUM_PREFIX_FORMAT;
+    private $outputPrefixFormat;
     /**
      * Whether to download jar in case it's missing or not.
      *
@@ -136,7 +169,7 @@ class Configuration
      * @type bool
      * @since 0.1.0
      */
-    private $throwOnNonZeroResult = true;
+    private $throwOnNonZeroExitCode = true;
     /**
      * This option tells runner to throw exception if configuration hasn't
      * passed validation.
@@ -503,20 +536,20 @@ class Configuration
      */
     public function shouldThrowOnNonZeroExitCode()
     {
-        return $this->throwOnNonZeroResult;
+        return $this->throwOnNonZeroExitCode;
     }
 
     /**
      * Sets throwOnNonZeroResult.
      *
-     * @param bool $throwOnNonZeroResult ThrowOnNonZeroResult.
+     * @param bool $throwOnNonZeroExitCode ThrowOnNonZeroResult.
      *
      * @return $this Current instance.
      * @since 0.1.0
      */
-    public function setThrowOnNonZeroResult($throwOnNonZeroResult)
+    public function setThrowOnNonZeroExitCode($throwOnNonZeroExitCode)
     {
-        $this->throwOnNonZeroResult = $throwOnNonZeroResult;
+        $this->throwOnNonZeroExitCode = $throwOnNonZeroExitCode;
         return $this;
     }
 
@@ -572,28 +605,78 @@ class Configuration
         return $this;
     }
 
-//    /**
-//     * Returns path to temporary directory.
-//     *
-//     * @return string
-//     * @since 0.1.0
-//     */
-//    public function getTemporaryDirectory()
-//    {
-//        return $this->temporaryDirectory;
-//    }
-//
-//    /**
-//     * Sets temporary directory.
-//     *
-//     * @param string $temporaryDirectory Path to temporary directory.
-//     *
-//     * @return $this Current instance.
-//     * @since 0.1.0
-//     */
-//    public function setTemporaryDirectory($temporaryDirectory)
-//    {
-//        $this->temporaryDirectory = $temporaryDirectory;
-//        return $this;
-//    }
+    /**
+     * Returns path to temporary directory.
+     *
+     * @return string
+     * @since 0.1.0
+     */
+    public function getTemporaryDirectory()
+    {
+        return $this->temporaryDirectory;
+    }
+
+    /**
+     * Sets temporary directory.
+     *
+     * @param string $temporaryDirectory Path to temporary directory.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setTemporaryDirectory($temporaryDirectory)
+    {
+        $this->temporaryDirectory = $temporaryDirectory;
+        return $this;
+    }
+
+    /**
+     * Returns dryRun.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function isDryRun()
+    {
+        return $this->dryRun;
+    }
+
+    /**
+     * Sets dryRun.
+     *
+     * @param bool $dryRun DryRun.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setDryRun($dryRun)
+    {
+        $this->dryRun = $dryRun;
+        return $this;
+    }
+
+    /**
+     * Returns useVfs.
+     *
+     * @return bool
+     * @since 0.1.0
+     */
+    public function shouldUseVfs()
+    {
+        return $this->useVfs;
+    }
+
+    /**
+     * Sets useVfs.
+     *
+     * @param bool $useVfs UseVfs.
+     *
+     * @return $this Current instance.
+     * @since 0.1.0
+     */
+    public function setUseVfs($useVfs)
+    {
+        $this->useVfs = $useVfs;
+        return $this;
+    }
 }

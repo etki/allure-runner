@@ -59,4 +59,32 @@ class Registry
      */
     const IO_CONTROLLER_INTERFACE
         = 'Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface';
+    /**
+     * Configuration builder FQCN.
+     *
+     * @since 0.1.0
+     */
+    const CONFIGURATION_BUILDER_CLASS =
+        'Etki\Testing\AllureFramework\Runner\Configuration\Builder';
+    /**
+     * Configuration FQCN.
+     *
+     * @since 0.1.0
+     */
+    const CONFIGURATION_CLASS =
+        'Etki\Testing\AllureFramework\Runner\Configuration\Configuration';
+    /**
+     * Filesystem helper FQCN.
+     *
+     * @since 0.1.0
+     */
+    const FILESYSTEM_HELPER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem';
+    /**
+     * Path resolver FQCN.
+     *
+     * @since 0.1.0
+     */
+    const PATH_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver';
 }

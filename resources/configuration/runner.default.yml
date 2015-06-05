@@ -1,3 +1,12 @@
-verbosity: info
+enabled: true
+verbosity: %DEFAULT_VERBOSITY_LEVEL%
+outputPrefixFormat: %DEFAULT_OUTPUT_PREFIX_FORMAT%
 downloadMissingJar: false
-preferredAllureVersion: 2.3
+preferredAllureVersion: %DEFAULT_ALLURE_VERSION%
+reportVersion: %DEFAULT_REPORT_VERSION%
+dryRun: false
+useVfs: false
+cleanGeneratedFiles: true
+throwOnInvalidConfiguration: true
+throwOnNonZeroExitCode: true
+throwOnMissingExecutable: true

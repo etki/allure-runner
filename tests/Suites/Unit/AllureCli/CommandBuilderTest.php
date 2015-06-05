@@ -139,11 +139,11 @@ class CommandBuilderTest extends AbstractClassAwareTest
                 array(
                     'executable' => '/usr/bin/dummy',
                     'command' => 'dummy',
-                    'options' => array(),
+                    'options' => array('opt' => array('value-1', 'value-2',)),
                     'arguments' => array('up', 'down',),
                     'postArguments' => array(),
                 ),
-                '/usr/bin/dummy dummy up down',
+                '/usr/bin/dummy dummy --opt value-1 --opt value-2 up down',
             )
         );
     }
@@ -173,6 +173,13 @@ class CommandBuilderTest extends AbstractClassAwareTest
             ->addPostArguments($definitions['postArguments']);
         $this->assertSame($expectedOutput, $builder->getCommand());
     }
+
+    /**
+     * Tests empty command generation.
+     *
+     * @return void
+     * @since 0.1.0
+     */
     public function testGenerateEmptyCommand()
     {
         $executable = 'fakecutable';
