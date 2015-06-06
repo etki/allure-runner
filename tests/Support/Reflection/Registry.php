@@ -46,6 +46,48 @@ class Registry
     const ALLURE_CLI_RUN_FACTORY_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\RunFactory';
     /**
+     * Run factory FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_RUN_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\Run';
+    /**
+     * Allure CLI runner FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_RUNNER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\Runner';
+    /**
+     * Allure CLI result output parser FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_RESULT_OUTPUT_PARSER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser';
+    /**
+     * Command builder FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_COMMAND_BUILDER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder';
+    /**
+     * Command builder factory FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_COMMAND_BUILDER_FACTORY_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilderFactory';
+    /**
+     * Allure cli run options DTO FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_CLI_RUN_OPTIONS_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\AllureCli\RunOptions';
+    /**
      * File locator FQCN.
      *
      * @since 0.1.0

@@ -2,8 +2,8 @@
 
 namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\AllureCli;
 
-use Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser;
-use Codeception\TestCase\Test;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Reflection\Registry;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Test\AbstractClassAwareTest;
 use UnitTester;
 
 /**
@@ -14,15 +14,8 @@ use UnitTester;
  * @package Etki\Testing\AllureFramework\Runner\Tests\Unit\AllureCli
  * @author  Etki <etki@etki.name>
  */
-class ResultOutputParserTest extends Test
+class ResultOutputParserTest extends AbstractClassAwareTest
 {
-    /**
-     * Tested class FQCN.
-     *
-     * @since 0.1.0
-     */
-    const TESTED_CLASS
-        = 'Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser';
     /**
      * Tester instance.
      *
@@ -34,15 +27,14 @@ class ResultOutputParserTest extends Test
     // utility
 
     /**
-     * Creates test instance.
+     * Returns test subject FQCN.
      *
-     * @return ResultOutputParser
+     * @return string
      * @since 0.1.0
      */
-    private function createTestInstance()
+    public function getTestedClass()
     {
-        $className = self::TESTED_CLASS;
-        return new $className;
+        return Registry::ALLURE_CLI_RESULT_OUTPUT_PARSER_CLASS;
     }
     
     // data providers
