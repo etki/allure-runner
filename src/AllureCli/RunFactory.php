@@ -42,7 +42,6 @@ class RunFactory
      *
      * @param ProcessFactory      $processFactory Process factory.
      * @param OutputBridgeFactory $bridgeFactory  Output bridge generator.
-     * @param ResultOutputParser  $outputParser   Allure output parser.
      * @param PhpApi              $phpApi         PHP API instance.
      *
      * @codeCoverageIgnore
