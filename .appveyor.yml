@@ -1,0 +1,20 @@
+build: false
+shallow_clone: true
+install:
+  - cinst -y curl
+  - cinst -y php
+  - SET PATH=C:\tools\php;C:\Program Files\curl;%PATH%
+  - cd c:\tools\php
+  - copy php.ini-production php.ini
+  - echo date.timezone="UTC" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - echo extension=php_mbstring.dll >> php.ini
+  - echo extension=php_curl.dll >> php.ini
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - php -r "readfile('http://getcomposer.org/installer');" | php
+  - php composer.phar install --prefer-dist -n --no-ansi
+before_test:
+  - php bin/codecept build
+test_script:
+  - php bin/codecept run --debug --coverage --coverage-xml --no-colors -n
