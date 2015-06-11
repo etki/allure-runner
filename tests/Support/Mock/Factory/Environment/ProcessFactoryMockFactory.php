@@ -5,6 +5,7 @@ namespace Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\Environ
 use Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockFactory;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\Vendor\Symfony\Component\Process\ProcessMockFactory;
+use mageekguy\atoum\tests\units\report;
 use Symfony\Component\Process\Process;
 use Codeception\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as Mock;
@@ -71,6 +72,24 @@ class ProcessFactoryMockFactory extends AbstractMockFactory
                     return $processMock;
                 }
             );
+        return $mock;
+    }
+
+    /**
+     * Returns mock with injected process instance.
+     *
+     * @param Process $process Process to inject.
+     *
+     * @return Mock|ProcessFactory
+     * @since 0.1.0
+     */
+    public function getInjectedMock(Process $process)
+    {
+        $mock = $this->getConstructorlessMock();
+        $mock
+            ->expects($this->getTest()->any())
+            ->method('getProcess')
+            ->willReturn($process);
         return $mock;
     }
 }

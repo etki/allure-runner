@@ -28,11 +28,14 @@ class Downloader
      * @since 0.10
      */
     private $filesystem;
+    
     /**
      * Initializer.
      *
      * @param Client     $guzzle     Guzzle client.
      * @param Filesystem $filesystem Filesystem helper.
+     *
+     * @codeCoverageIgnore
      *
      * @since 0.1.0
      */
@@ -55,6 +58,7 @@ class Downloader
     {
         $request = $this->guzzle->get($source);
         $response = $request->send();
+        // todo use streams plz
         $this->filesystem->writeFile($target, $response->getBody(true));
     }
 }

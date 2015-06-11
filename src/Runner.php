@@ -2,8 +2,9 @@
 
 namespace Etki\Testing\AllureFramework\Runner;
 
+use Etki\Testing\AllureFramework\Runner\Configuration\Builder;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
-use Etki\Testing\AllureFramework\Runner\Configuration\ConfigurationValidator;
+use Etki\Testing\AllureFramework\Runner\Configuration\Validator;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\DependencyInjection\ContainerBuilder;
 use Etki\Testing\AllureFramework\Runner\Exception\AllureCli\NonZeroExitCodeException;
@@ -68,7 +69,7 @@ class Runner
      * @since 0.1.0
      */
     public function __construct(
-        Configuration $configuration,
+        Configuration $configuration = null,
         IOControllerInterface $ioController = null,
         Container $container = null
     ) {
@@ -76,7 +77,7 @@ class Runner
             $container = $this->createContainer($configuration, $ioController);
         }
         $this->container = $container;
-        $this->configuration = $configuration;
+        $this->configuration = $configuration ?: $this->buildConfiguration();
         $this->ioController = $ioController ?: $container->get('io_controller');
         $this->configureIoController($this->ioController);
         $message = 'Allure Runner has successfully initialized';
@@ -95,7 +96,7 @@ class Runner
      * @since 0.1.0
      */
     private function createContainer(
-        Configuration $configuration,
+        Configuration $configuration = null,
         IOControllerInterface $ioController = null
     ) {
         $builder = new ContainerBuilder;
@@ -105,17 +106,54 @@ class Runner
             = Configuration::CONTAINER_CONFIGURATION_FILE_NAME;
         $configurationPath
             = $pathResolver->getConfigurationFile($configurationFileName);
-        $services = array(
-            'io_controller' => $ioController,
-            'path_resolver' => $pathResolver,
-        );
         $container = $builder->build(
             array($configurationPath,),
-            $services,
+            array(
+                'io_controller' => $ioController,
+                'path_resolver' => $pathResolver,
+            ),
             array('configuration' => $configuration,)
         );
-        $container->compile();
         return $container;
+    }
+
+    /**
+     * Builds configuration
+     *
+     * @return Configuration
+     * @since 0.1.0
+     */
+    private function buildConfiguration()
+    {
+        $configuration = $this->getConfigurationBuilder()->build();
+        $this->container->setParameter('configuration', $configuration);
+        return $configuration;
+    }
+
+    /**
+     * Returns current configuration.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return Configuration
+     * @since 0.1.0
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
+
+    /**
+     * Returns configuration builder.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return Builder
+     * @since 0.1.0
+     */
+    public function getConfigurationBuilder()
+    {
+        return $this->container->get('configuration_builder');
     }
     
     /**
@@ -126,6 +164,7 @@ class Runner
      */
     public function run()
     {
+        $this->container->compile();
         $this->ioController->writeLine(
             'Starting Allure CLI processing',
             Verbosity::LEVEL_NOTICE
@@ -135,11 +174,19 @@ class Runner
         /** @type Scenario $scenario */
         $scenario = $this->container->get('scenario');
         if (!$this->validateConfiguration($this->configuration)) {
+            $message = InvalidConfigurationException::getDefaultMessage();
+            $exception = new InvalidConfigurationException($message);
             if ($this->configuration->shouldThrowOnInvalidConfiguration()) {
-                $message = InvalidConfigurationException::getDefaultMessage();
-                throw new InvalidConfigurationException($message);
+                throw $exception;
             }
-            return new Report(Report::STATUS_CANCELLED);
+            $report = new Report(
+                Report::STATUS_CANCELLED,
+                null,
+                null,
+                null,
+                $exception
+            );
+            return $report;
         }
         $report = $scenario->run();
         $this->handleRunResult($report);
@@ -170,6 +217,8 @@ class Runner
                 throw $exception;
             }
         }
+        // todo: even if exception throwage is cancelled, it should be returned
+        // within report
         if ($report->getExitCode()
             && $this->configuration->shouldThrowOnNonZeroExitCode()
         ) {
@@ -210,7 +259,7 @@ class Runner
      */
     private function validateConfiguration(Configuration $configuration)
     {
-        /** @type ConfigurationValidator $validator */
+        /** @type Validator $validator */
         $validator = $this->container->get('configuration_validator');
         return $validator->validate($configuration);
     }

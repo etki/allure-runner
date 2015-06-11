@@ -71,6 +71,8 @@ class JarResolver
      * @param Filesystem            $filesystemHelper Filesystem helper.
      * @param IOControllerInterface $ioController     I\O controller.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */

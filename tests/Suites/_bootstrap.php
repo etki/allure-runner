@@ -7,6 +7,7 @@ use Codeception\Util\Fixtures;
 Fixtures::add('service.testing.archive_loader', new ZipArchiveLoader);
 
 AnnotationReader::addGlobalIgnoredName('type');
+AnnotationReader::addGlobalIgnoredName('test');
 AnnotationReader::addGlobalIgnoredName('expectedException');
 AnnotationReader::addGlobalIgnoredName('codingStandardsIgnoreStart');
 AnnotationReader::addGlobalIgnoredName('codingStandardsIgnoreEnd');

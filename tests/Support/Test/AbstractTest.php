@@ -8,8 +8,10 @@ use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
 use Etki\Testing\AllureFramework\Runner\DependencyInjection\ContainerBuilder;
 use Etki\Testing\AllureFramework\Runner\IO\Controller\ConsoleIOController;
+use Etki\Testing\AllureFramework\Runner\IO\Controller\DummyController;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Data\Loader\Api\BaseApiResponseLoader;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Debug\DebugWriter;
+use Etki\Testing\AllureFramework\Runner\Tests\Support\Reflection\Registry;
 use Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 use Etki\Testing\AllureFramework\Runner\Tests\Support\Mock\Factory\AbstractMockFactory;
@@ -129,6 +131,36 @@ abstract class AbstractTest extends Test
             array('configuration' => $configuration,)
         );
         return $container;
+    }
+
+    /**
+     * Strips I/O services from container, so nothing can perform I/O during
+     * tests (if necessary).
+     *
+     * @param Container $container  Container instance.
+     * @param string[]  $exclusions List of services that should not be
+     *                             overriden.
+     *
+     * @return void
+     * @since 0.1.0
+     */
+    public function wipeContainerIoServices(
+        Container $container,
+        array $exclusions = array()
+    ) {
+        $services = array(
+            'io_controller' => new DummyController,
+            'php_filesystem_api' => $this->getMockFactory(Registry::PHP_FILESYSTEM_API_CLASS)->getDummyMock(),
+            'github_api_client' => $this->getMockFactory(Registry::GITHUB_API_CLIENT_CLASS)->getDummyMock(),
+            'guzzle' => $this->getMockFactory(Registry::GUZZLE_CLIENT_CLASS)->getDummyMock(),
+            'symfony_filesystem' => $this->getMockFactory(Registry::SYMFONY_FILESYSTEM_CLASS)->getDummyMock(),
+            'zip_extractor' => $this->getMockFactory(Registry::EXTRACTOR_CLASS)->getDummyMock(),
+        );
+        foreach ($services as $id => $service) {
+            if (!in_array($id, $exclusions, true)) {
+                $container->set($id, $service);
+            }
+        }
     }
 
     /**

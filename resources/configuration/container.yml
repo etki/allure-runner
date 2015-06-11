@@ -8,11 +8,12 @@
 parameters:
   ignored_annotations:
     - type
-    - expectedException
     - codeCoverageIgnore
     - codingStandardsIgnoreFile
     - codingStandardsIgnoreStart
     - codingStandardsIgnoreEnd
+    - expectedException
+    - test
 services:
   php_api:
     class: Etki\Testing\AllureFramework\Runner\Utility\PhpApi

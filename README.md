@@ -25,6 +25,19 @@ framework plugins that will help in automating the process:
 
 ## Usage
 
+### Installation
+
+`composer require etki/allure-runner:@dev --no-dev`
+
+### Running tests
+
+```bash
+git clone git@github.com/etki/allure-runner && cd allure-runner
+composer install
+bin/codecept build
+bin/codecept run
+```
+
 ### Common options
 
 * `reportPath`: directory where report should appear. This is a mandatory
@@ -47,7 +60,7 @@ executable. This will be set to true in direct API calls and to false in
 framework plugins by default, though you can always override it.
 * `throwOnNonZeroResult`: quite the same option that tells to throw exception
 whenever Allure CLI returns something other than 0. This is set true by default
-and to false in framework plugins. As of 
+and to false in framework plugins.
 
 ### Codeception extension
 

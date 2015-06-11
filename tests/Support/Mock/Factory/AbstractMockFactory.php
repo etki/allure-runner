@@ -182,16 +182,38 @@ abstract class AbstractMockFactory
      *
      * @param array $arguments List of constructor arguments.
      *
+     * @deprecated
+     *
      * @return Mock
      * @since 0.1.0
      */
-    public function getDummyMock(array $arguments = array())
+    public function getDummyMockDeprecated(array $arguments = array())
     {
         $mock = $this->getMock($arguments);
         foreach ($this->getMockedClassPublicMethods() as $method) {
             $mock
                 ->expects($this->getTest()->any())
                 ->method($method->name)
+                ->withAnyParameters()
+                ->willReturn(null);
+        }
+        return $mock;
+    }
+
+    /**
+     * Gets dummy mock that simply returns null wherever it wants.
+     *
+     * @return Mock
+     * @since 0.1.0
+     */
+    public function getDummyMock()
+    {
+        $mock = $this->getConstructorlessMock();
+        foreach ($this->getMockedClassPublicMethods() as $method) {
+            $mock
+                ->expects($this->getTest()->any())
+                ->method($method->name)
+                ->withAnyParameters()
                 ->willReturn(null);
         }
         return $mock;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Scenario;
+namespace Etki\Testing\AllureFramework\Runner\Tests\Unit\Run\Scenario;
 
 use Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;

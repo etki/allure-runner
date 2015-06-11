@@ -41,7 +41,9 @@ class ContainerBuilder
         $container = $container ?: new Container;
         $container = $this->populateContainer($container, $configurationPaths);
         foreach ($extraServices as $key => $service) {
-            $container->set($key, $service);
+            if ($service) {
+                $container->set($key, $service);
+            }
         }
         foreach ($extraParameters as $key => $parameter) {
             $container->setParameter($key, $parameter);

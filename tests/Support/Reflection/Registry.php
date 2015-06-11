@@ -18,6 +18,7 @@ class Registry
      * @since 0.1.0
      */
     const RUNNER_CLASS = 'Etki\Testing\AllureFramework\Runner\Runner';
+    
     /**
      * PHP filesystem API FQCN.
      *
@@ -25,12 +26,21 @@ class Registry
      */
     const PHP_FILESYSTEM_API_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Utility\PhpApi\Filesystem';
+    
     /**
      * Symfony process FQCN.
      *
      * @since 0.1.0
      */
     const SYMFONY_PROCESS_CLASS = 'Symfony\Component\Process\Process';
+    
+    /**
+     * Symfony filesystem FQCN.
+     *
+     * @since 0.1.0
+     */
+    const SYMFONY_FILESYSTEM_CLASS = 'Symfony\Component\Filesystem\Filesystem';
+    
     /**
      * Process factory FQCN.
      *
@@ -38,6 +48,7 @@ class Registry
      */
     const PROCESS_FACTORY_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Environment\ProcessFactory';
+    
     /**
      * Run factory FQCN.
      *
@@ -45,6 +56,7 @@ class Registry
      */
     const ALLURE_CLI_RUN_FACTORY_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\RunFactory';
+    
     /**
      * Run factory FQCN.
      *
@@ -52,6 +64,7 @@ class Registry
      */
     const ALLURE_CLI_RUN_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\Run';
+    
     /**
      * Allure CLI runner FQCN.
      *
@@ -59,6 +72,7 @@ class Registry
      */
     const ALLURE_CLI_RUNNER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\Runner';
+    
     /**
      * Allure CLI result output parser FQCN.
      *
@@ -66,6 +80,7 @@ class Registry
      */
     const ALLURE_CLI_RESULT_OUTPUT_PARSER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\ResultOutputParser';
+    
     /**
      * Command builder FQCN.
      *
@@ -73,6 +88,7 @@ class Registry
      */
     const ALLURE_CLI_COMMAND_BUILDER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilder';
+    
     /**
      * Command builder factory FQCN.
      *
@@ -80,6 +96,7 @@ class Registry
      */
     const ALLURE_CLI_COMMAND_BUILDER_FACTORY_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\CommandBuilderFactory';
+    
     /**
      * Allure cli run options DTO FQCN.
      *
@@ -87,6 +104,7 @@ class Registry
      */
     const ALLURE_CLI_RUN_OPTIONS_CLASS
         = 'Etki\Testing\AllureFramework\Runner\AllureCli\RunOptions';
+    
     /**
      * File locator FQCN.
      *
@@ -94,6 +112,7 @@ class Registry
      */
     const FILE_LOCATOR_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Environment\Filesystem\FileLocator';
+    
     /**
      * I/O controller FQIN.
      *
@@ -101,20 +120,31 @@ class Registry
      */
     const IO_CONTROLLER_INTERFACE
         = 'Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface';
+    
     /**
      * Configuration builder FQCN.
      *
      * @since 0.1.0
      */
-    const CONFIGURATION_BUILDER_CLASS =
-        'Etki\Testing\AllureFramework\Runner\Configuration\Builder';
+    const CONFIGURATION_BUILDER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Configuration\Builder';
+
+    /**
+     * Configuration validator FQCN.
+     *
+     * @since 0.1.0
+     */
+    const CONFIGURATION_VALIDATOR_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Configuration\Validator';
+    
     /**
      * Configuration FQCN.
      *
      * @since 0.1.0
      */
-    const CONFIGURATION_CLASS =
-        'Etki\Testing\AllureFramework\Runner\Configuration\Configuration';
+    const CONFIGURATION_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Configuration\Configuration';
+    
     /**
      * Filesystem helper FQCN.
      *
@@ -122,6 +152,7 @@ class Registry
      */
     const FILESYSTEM_HELPER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem';
+    
     /**
      * Path resolver FQCN.
      *
@@ -129,4 +160,103 @@ class Registry
      */
     const PATH_RESOLVER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Utility\Filesystem\PathResolver';
+
+    /**
+     * Extractor FQCN.
+     *
+     * @since 0.1.0
+     */
+    const EXTRACTOR_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Extractor';
+
+    /**
+     * Downloader FQCN.
+     *
+     * @since 0.1.0
+     */
+    const DOWNLOADER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Utility\Downloader';
+    
+    /**
+     * Allure executable computer FQCN.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_EXECUTABLE_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Tests\Functional\Run\Scenario\AllureExecutableResolver';
+
+    /**
+     * FQCN of resolver for asset containing `.jar` file.
+     *
+     * @since 0.1.0
+     */
+    const JAR_ASSET_URL_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetResolver';
+
+    /**
+     * `.jar` file locator FQCN.
+     *
+     * @since 0.1.0
+     */
+    const JAR_LOCATOR_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarLocator';
+    /**
+     * `.jar` file resolver FQCN.
+     *
+     * @since 0.1.0
+     */
+    const JAR_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarResolver';
+
+    /**
+     * Github API client FQCN.
+     *
+     * @since 0.1.0
+     */
+    const GITHUB_API_CLIENT_CLASS = 'Github\Client';
+    
+    /**
+     * Github API repository-specific client FQCN.
+     *
+     * @since 0.1.0
+     */
+    const GITHUB_API_REPOSITORY_CLIENT_CLASS = 'Github\Api\Repo';
+    
+    /**
+     * Github API release-specific client FQCN.
+     *
+     * @since 0.1.0
+     */
+    const GITHUB_API_RELEASE_CLIENT_CLASS = 'Github\Api\Repository\Releases';
+
+    /**
+     * Guzzle client FQCN.
+     *
+     * @since 0.1.0
+     */
+    const GUZZLE_CLIENT_CLASS = 'Guzzle\Http\Client';
+    
+    /**
+     * Allure executable not found exception class.
+     *
+     * @since 0.1.0
+     */
+    const ALLURE_EXECUTABLE_NOT_FOUND_EXCEPTION_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Exception\Run\AllureExecutableNotFoundException';
+
+    /**
+     * Invalid configuration exception class.
+     *
+     * @since 0.1.0
+     */
+    const INVALID_CONFIGURATION_EXCEPTION_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Exception\Configuration\InvalidConfigurationException';
+
+    /**
+     * Exception thrown on non-zero exit codes exit.
+     *
+     * @since 0.1.0
+     */
+    const NON_ZERO_EXIT_CODE_EXCEPTION
+        = 'Etki\Testing\AllureFramework\Runner\Exception\AllureCli\NonZeroExitCodeException';
 }

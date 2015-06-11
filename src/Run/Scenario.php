@@ -107,7 +107,7 @@ class Scenario
         );
         $report = $this->runner->run($executable, $runOptions);
         $this->ioController->writeLine(
-            'Allure run finished',
+            'Allure CLI run has finished',
             Verbosity::LEVEL_DEBUG
         );
         $this->handleRunResult($report);

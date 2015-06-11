@@ -90,7 +90,7 @@ class Schema
      *
      * @since 0.1.0
      */
-    const PARAMETER_THROW_ON_NON_ZERO_EXIT_CODE = 'throwOnInvalidConfiguration';
+    const PARAMETER_THROW_ON_NON_ZERO_EXIT_CODE = 'throwOnNonZeroExitCode';
     /**
      * Key for 'should i clean generated files' parameter.
      *
