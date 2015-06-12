@@ -213,9 +213,6 @@ class AllureExecutableResolver
      */
     private function testExecutable($executable)
     {
-        if (!$executable) {
-            return false;
-        }
         if (!$this->filesystem->isExecutable($executable)) {
             $message = sprintf(
                 'File `%s` doesn\'t appear to be executable',

@@ -6,7 +6,6 @@ use Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseResolver;
 use Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver;
 use Etki\Testing\AllureFramework\Runner\Configuration\Configuration;
 use Etki\Testing\AllureFramework\Runner\Configuration\Verbosity;
-use Etki\Testing\AllureFramework\Runner\Exception\Api\Github\ReleaseNotFoundException;
 use Etki\Testing\AllureFramework\Runner\IO\IOControllerInterface;
 
 /**
@@ -58,6 +57,8 @@ class JarAssetUrlResolver
      *                                               resolver.
      * @param IOControllerInterface $ioController    I/O controller.
      *
+     * @codeCoverageIgnore
+     *
      * @return self
      * @since 0.1.0
      */
@@ -75,6 +76,9 @@ class JarAssetUrlResolver
 
     /**
      * Returns URL for the required asset or null if that asset can't be found.
+     *
+     * todo i guess, if user has specified invalid release, it is better to warn
+     * him with exception?
      *
      * @return string|null
      * @since 0.1.0

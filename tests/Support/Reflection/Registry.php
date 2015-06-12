@@ -183,7 +183,15 @@ class Registry
      * @since 0.1.0
      */
     const ALLURE_EXECUTABLE_RESOLVER_CLASS
-        = 'Etki\Testing\AllureFramework\Runner\Tests\Functional\Run\Scenario\AllureExecutableResolver';
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\AllureExecutableResolver';
+
+    /**
+     * Java executable locator FQCN.
+     *
+     * @since 0.1.0
+     */
+    const JAVA_EXECUTABLE_LOCATOR_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JavaExecutableLocator';
 
     /**
      * FQCN of resolver for asset containing `.jar` file.
@@ -191,7 +199,7 @@ class Registry
      * @since 0.1.0
      */
     const JAR_ASSET_URL_RESOLVER_CLASS
-        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetResolver';
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarAssetUrlResolver';
 
     /**
      * `.jar` file locator FQCN.
@@ -200,6 +208,7 @@ class Registry
      */
     const JAR_LOCATOR_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarLocator';
+    
     /**
      * `.jar` file resolver FQCN.
      *
@@ -207,6 +216,30 @@ class Registry
      */
     const JAR_RESOLVER_CLASS
         = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarResolver';
+
+    /**
+     * `.jar` file downloader FQCN.
+     *
+     * @since 0.1.0
+     */
+    const JAR_DOWNLOADER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Run\Scenario\JarDownloader';
+
+    /**
+     * Release asset resolver FQCN.
+     *
+     * @since 0.1.0
+     */
+    const RELEASE_ASSET_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseAssetResolver';
+    
+    /**
+     * Github Allure release resolver FQCN.
+     *
+     * @since 0.1.0
+     */
+    const RELEASE_RESOLVER_CLASS
+        = 'Etki\Testing\AllureFramework\Runner\Api\Github\ReleaseResolver';
 
     /**
      * Github API client FQCN.

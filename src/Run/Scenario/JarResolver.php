@@ -158,6 +158,7 @@ class JarResolver
     private function downloadJar()
     {
         $location = null;
+        // todo shouldn't this code rethrow exception?
         try {
             $url = $this->assetUrlResolver->resolveUrl();
             if (!$url) {
